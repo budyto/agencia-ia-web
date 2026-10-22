@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;600;700&family=Host+Grotesk:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202610221603">
+<link rel="stylesheet" href="styles.css?v=202610221609">
 <script>document.documentElement.classList.remove('no-js')</script>
 </head>
 <body>
@@ -211,25 +211,44 @@
           </div>
         </article>
 
-        <article class="demo wide">
+        <article class="demo wide dash-demo" id="dash">
+          <div class="dash-bg" aria-hidden="true"></div>
           <div class="demo-head">
-            <div><h3>Todo termina en un tablero</h3><p>Cada conversación, llamada y venta queda medida. Te llega el resumen diario por WhatsApp.</p></div>
-            <span class="live">HOY</span>
+            <div><h3>Todo termina en un tablero</h3><p>Cada conversación, llamada y venta queda medida en tiempo real. Y te llega el resumen diario por WhatsApp.</p></div>
+            <span class="live">EN VIVO</span>
           </div>
-          <div class="kpis">
-            <div class="kpi"><small>Conversaciones atendidas</small><div class="v" data-count="1284">0</div><span class="d">100% en &lt; 10 s</span></div>
-            <div class="kpi"><small>Ventas cerradas por el bot</small><div class="v" data-count="96">0</div><span class="d">sin intervención</span></div>
-            <div class="kpi"><small>Cobranza recuperada</small><div class="v" data-count="3.4" data-prefix="$" data-suffix="M" data-dec="1">0</div><span class="d">por agente de voz</span></div>
-            <div class="kpi"><small>Horas de equipo liberadas</small><div class="v" data-count="212" data-suffix=" h">0</div><span class="d">este mes</span></div>
+          <div class="dash">
+            <div class="dash-main">
+              <div class="kpis">
+                <div class="kpi"><small>Conversaciones atendidas</small><div class="kv" data-key="conv" data-count="1284">0</div><span class="d">↑ 100% en &lt; 10 s</span><svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none"><path/></svg></div>
+                <div class="kpi"><small>Ventas cerradas por IA</small><div class="kv" data-key="ventas" data-count="96">0</div><span class="d">↑ sin intervención</span><svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none"><path/></svg></div>
+                <div class="kpi"><small>Cobranza recuperada</small><div class="kv" data-key="cobro" data-count="3.4" data-prefix="$" data-suffix="M" data-dec="1">0</div><span class="d">↑ por agente de voz</span><svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none"><path/></svg></div>
+                <div class="kpi"><small>Horas de equipo liberadas</small><div class="kv" data-key="horas" data-count="212" data-suffix=" h">0</div><span class="d">↑ este mes</span><svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none"><path/></svg></div>
+              </div>
+              <div class="chart">
+                <div class="chart-top"><span>Ventas por hora · hoy</span><b id="chart-now">$0</b></div>
+                <div class="plot">
+                <svg viewBox="0 0 600 160" preserveAspectRatio="none" aria-label="Ventas por hora, actualizándose en vivo">
+                  <defs><linearGradient id="g-area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff6b3d" stop-opacity=".35"/><stop offset="1" stop-color="#ff6b3d" stop-opacity="0"/></linearGradient></defs>
+                  <line class="gl" x1="0" x2="600" y1="40" y2="40"/><line class="gl" x1="0" x2="600" y1="80" y2="80"/><line class="gl" x1="0" x2="600" y1="120" y2="120"/>
+                  <path class="ar" id="chart-area" d=""/>
+                  <path class="ln" id="chart-line" d=""/>
+                </svg>
+                <span class="chart-dot" id="chart-dot"></span>
+                </div>
+              </div>
+            </div>
+            <aside class="feed-live">
+              <div class="feed-live-head"><span>Actividad</span><span class="live">AHORA</span></div>
+              <ul id="activity" aria-live="off"></ul>
+            </aside>
           </div>
-          <div class="chart">
-            <svg viewBox="0 0 600 160" preserveAspectRatio="none" aria-label="Ventas por día, tendencia creciente">
-              <defs><linearGradient id="g-area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff6b3d" stop-opacity=".35"/><stop offset="1" stop-color="#ff6b3d" stop-opacity="0"/></linearGradient></defs>
-              <line class="gl" x1="0" x2="600" y1="40" y2="40"/><line class="gl" x1="0" x2="600" y1="80" y2="80"/><line class="gl" x1="0" x2="600" y1="120" y2="120"/>
-              <path class="ar" id="chart-area" d=""/>
-              <path class="ln" id="chart-line" d=""/>
-            </svg>
-            <div class="chart-legend"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
+          <div class="integr">
+            <span class="integr-label">Se conecta con</span>
+            <div class="integr-track"><div>
+              <span>WhatsApp Business</span><span>Mercado Pago</span><span>Google Calendar</span><span>Google Sheets</span><span>Gmail</span><span>Instagram</span><span>Tiendanube</span><span>HubSpot</span><span>Excel</span><span>Tu sistema</span>
+              <span>WhatsApp Business</span><span>Mercado Pago</span><span>Google Calendar</span><span>Google Sheets</span><span>Gmail</span><span>Instagram</span><span>Tiendanube</span><span>HubSpot</span><span>Excel</span><span>Tu sistema</span>
+            </div></div>
           </div>
           <p class="roi-note">Datos de ejemplo para la demo.</p>
         </article>
@@ -489,8 +508,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610221603"></script>
-<script src="main.js?v=202610221603"></script>
+<script src="config.js?v=202610221609"></script>
+<script src="main.js?v=202610221609"></script>
 </body>
 </html>
 

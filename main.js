@@ -292,34 +292,96 @@
   }
   onView(tr, runCall);
 
-  /* ---------- Dashboard ---------- */
+  /* ---------- Dashboard en vivo ---------- */
   const fmt = (n, dec) => n.toLocaleString("es-AR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
-  function runDash() {
-    $$("[data-count]").forEach((el) => {
-      const end = +el.dataset.count, dec = +(el.dataset.dec || 0);
-      const pre = el.dataset.prefix || "", suf = el.dataset.suffix || "";
-      const t0 = performance.now(), dur = reduced ? 1 : 1600;
-      const step = (now) => {
-        const p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-        el.textContent = pre + fmt(end * e, dec) + suf;
-        if (p < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    });
-    const data = [38, 52, 47, 70, 66, 95, 118];
-    const pts = data.map((v, i) => [i * 100, 150 - v]);
-    const line = pts.map((p, i) => (i ? "L" : "M") + p.join(",")).join(" ");
-    const ln = $("#chart-line");
-    ln.setAttribute("d", line);
-    $("#chart-area").setAttribute("d", `${line} L600,160 L0,160 Z`);
-    const len = ln.getTotalLength();
-    ln.style.strokeDasharray = len;
-    ln.style.strokeDashoffset = len;
-    ln.getBoundingClientRect();
-    ln.style.transition = reduced ? "none" : "stroke-dashoffset 1.8s cubic-bezier(.2,.8,.2,1)";
-    ln.style.strokeDashoffset = 0;
+  const dash = $("#dash");
+  let dashOn = false; // solo se actualiza mientras está en pantalla
+  new IntersectionObserver(([en]) => { dashOn = en.isIntersecting; }, { threshold: 0.15 }).observe(dash);
+
+  // Indicadores: cuentan hasta su valor y después siguen subiendo de a poco
+  const kpis = $$(".kv").map((el) => ({
+    el, val: 0, end: +el.dataset.count, dec: +(el.dataset.dec || 0),
+    pre: el.dataset.prefix || "", suf: el.dataset.suffix || "",
+    spark: Array.from({ length: 16 }, (_, i) => 8 + i * 1.1 + Math.random() * 6),
+    path: el.parentElement.querySelector(".spark path"),
+  }));
+  const paintKpi = (k) => { k.el.textContent = k.pre + fmt(k.val, k.dec) + k.suf; };
+  const paintSpark = (k) => {
+    const max = Math.max(...k.spark), min = Math.min(...k.spark);
+    k.path.setAttribute("d", k.spark.map((v, i) =>
+      `${i ? "L" : "M"}${(i / (k.spark.length - 1)) * 100},${26 - ((v - min) / (max - min || 1)) * 22}`).join(" "));
+  };
+  kpis.forEach(paintSpark);
+
+  // Gráfico: 24 puntos que se corren hacia la izquierda a medida que entran ventas nuevas
+  const series = Array.from({ length: 24 }, (_, i) => 30 + i * 2.6 + Math.sin(i / 2) * 10 + Math.random() * 10);
+  const ln = $("#chart-line"), ar = $("#chart-area"), dot = $("#chart-dot"), now = $("#chart-now");
+  function paintChart() {
+    const max = Math.max(...series) * 1.12;
+    const pts = series.map((v, i) => [(i / (series.length - 1)) * 600, 160 - (v / max) * 150]);
+    const d = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+    ln.setAttribute("d", d);
+    ar.setAttribute("d", `${d} L600,160 L0,160 Z`);
+    const last = pts.at(-1);
+    dot.style.top = `${(last[1] / 160) * 100}%`;
+    now.textContent = "$" + fmt(series.at(-1) * 1350, 0);
   }
-  onView($(".kpis"), runDash);
+
+  // Actividad: eventos que van entrando arriba
+  const EVENTS = [
+    ["wa", "Bot de WhatsApp", () => `Cerró una venta · $${fmt(18 + Math.random() * 90, 0)}.000`],
+    ["voz", "Agente de voz", () => `Promesa de pago · cuota ${1 + Math.floor(Math.random() * 11)}/12`],
+    ["turno", "Turnos", () => `Confirmó turno · ${["lun", "mar", "mié", "jue", "vie"][Math.floor(Math.random() * 5)]} ${9 + Math.floor(Math.random() * 9)}:${Math.random() < 0.5 ? "00" : "30"}`],
+    ["doc", "Documentos", () => `Leyó ${2 + Math.floor(Math.random() * 9)} facturas`],
+    ["crm", "CRM", () => `Lead calificado · ${["Instagram", "WhatsApp", "web"][Math.floor(Math.random() * 3)]}`],
+    ["wa", "Bot de WhatsApp", () => `Respondió en ${2 + Math.floor(Math.random() * 7)} s`],
+  ];
+  const activity = $("#activity");
+  function pushEvent(animate = true) {
+    const [kind, who, text] = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+    const li = document.createElement("li");
+    li.className = `ev ev-${kind}${animate ? " in" : ""}`;
+    li.innerHTML = `<i></i><div><b>${who}</b><span>${text()}</span></div><time>ahora</time>`;
+    activity.prepend(li);
+    $$("time", activity).forEach((t, i) => { if (i) t.textContent = `hace ${i * 3} s`; });
+    while (activity.children.length > 7) activity.lastElementChild.remove();
+  }
+
+  function startDash() {
+    // Entrada: cuenta los números y dibuja el gráfico
+    const t0 = performance.now();
+    const intro = (tNow) => {
+      const p = Math.min(1, (tNow - t0) / 1600), e = 1 - Math.pow(1 - p, 3);
+      kpis.forEach((k) => { k.val = k.end * e; paintKpi(k); });
+      if (p < 1) requestAnimationFrame(intro);
+    };
+    requestAnimationFrame(intro);
+    paintChart();
+    const len = ln.getTotalLength();
+    ln.style.strokeDasharray = len; ln.style.strokeDashoffset = len;
+    ln.getBoundingClientRect();
+    ln.style.transition = "stroke-dashoffset 1.6s cubic-bezier(.2,.8,.2,1)";
+    ln.style.strokeDashoffset = 0;
+    setTimeout(() => { ln.style.transition = ""; ln.style.strokeDasharray = ""; ln.style.strokeDashoffset = ""; }, 1700);
+    for (let i = 0; i < 5; i++) pushEvent(false);
+
+    // Después, en vivo
+    setInterval(() => {
+      if (!dashOn) return;
+      pushEvent();
+      const k = kpis[Math.floor(Math.random() * kpis.length)];
+      k.val += k.dec ? 0.1 : 1 + Math.floor(Math.random() * 3);
+      paintKpi(k);
+      k.el.classList.remove("bump"); k.el.offsetWidth; k.el.classList.add("bump");
+      k.spark.push(k.spark.at(-1) + Math.random() * 4 - 1); k.spark.shift(); paintSpark(k);
+    }, 2200);
+    setInterval(() => {
+      if (!dashOn) return;
+      series.push(Math.max(20, series.at(-1) + (Math.random() * 22 - 8))); series.shift();
+      paintChart();
+    }, 1400);
+  }
+  onView($(".kpis"), startDash);
 
   /* ---------- Calculadora ROI ---------- */
   const r = { people: $("#r-people"), hours: $("#r-hours"), cost: $("#r-cost"), auto: $("#r-auto") };

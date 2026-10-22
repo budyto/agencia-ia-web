@@ -390,24 +390,51 @@
   onView($(".kpis"), startDash);
 
   /* ---------- Calculadora ROI ---------- */
+  // Calcula siempre en dólares; en pesos solo cambia cómo se muestra y el rango del costo.
   const r = { people: $("#r-people"), hours: $("#r-hours"), cost: $("#r-cost"), auto: $("#r-auto") };
-  const usd = (n) => "US$ " + Math.round(n).toLocaleString("es-AR");
+  let currency = "USD";
+  let rate = +cfg.usdArs || 1500;
+  let costUsd = +r.cost.value;
+  const RANGE = { USD: { min: 1, max: 150, step: 1 }, ARS: { min: 1000, max: 200000, step: 500 } };
+  const money = (usdValue, compact) => {
+    if (currency === "USD") return "US$ " + Math.round(usdValue).toLocaleString("es-AR");
+    const ars = usdValue * rate;
+    if (compact && ars >= 1e6) return "$ " + (ars / 1e6).toLocaleString("es-AR", { maximumFractionDigits: 1 }) + " M";
+    return "$ " + Math.round(ars).toLocaleString("es-AR");
+  };
   let lastSaving = "";
   function calc() {
-    const p = +r.people.value, h = +r.hours.value, c = +r.cost.value, a = +r.auto.value / 100;
+    const p = +r.people.value, h = +r.hours.value, a = +r.auto.value / 100;
+    costUsd = currency === "USD" ? +r.cost.value : +r.cost.value / rate;
     $("#o-people").textContent = p;
     $("#o-hours").textContent = `${h} h`;
-    $("#o-cost").textContent = `US$ ${c}`;
+    $("#o-cost").textContent = currency === "USD" ? `US$ ${r.cost.value}` : `$ ${(+r.cost.value).toLocaleString("es-AR")}`;
     $("#o-auto").textContent = `${Math.round(a * 100)}%`;
     const hoursMonth = p * h * 4.33 * a;
-    const month = hoursMonth * c;
+    const month = hoursMonth * costUsd;
     $("#roi-hours").textContent = `${Math.round(hoursMonth).toLocaleString("es-AR")} h`;
-    $("#roi-month").textContent = usd(month);
-    $("#roi-year").textContent = usd(month * 12);
-    lastSaving = `${usd(month * 12)}/año (${Math.round(hoursMonth)} h/mes)`;
+    $("#roi-month").textContent = money(month, true);
+    $("#roi-year").textContent = money(month * 12, true);
+    lastSaving = `${money(month * 12)}/año (${Math.round(hoursMonth)} h/mes)`;
   }
+  function setCurrency(cur) {
+    const usdNow = costUsd;
+    currency = cur;
+    Object.assign(r.cost, RANGE[cur]);
+    const v = cur === "USD" ? usdNow : usdNow * rate;
+    r.cost.value = Math.round(v / RANGE[cur].step) * RANGE[cur].step;
+    $$(".cur-sw button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.cur === cur));
+    $("#cur-rate").textContent = cur === "ARS" ? `1 USD = $ ${Math.round(rate).toLocaleString("es-AR")} (oficial)` : "";
+    calc();
+  }
+  $$(".cur-sw button").forEach((b) => b.addEventListener("click", () => setCurrency(b.dataset.cur)));
   Object.values(r).forEach((i) => i.addEventListener("input", calc));
   calc();
+  // Cotización oficial del día (si no responde, queda la de config.js)
+  fetch("https://dolarapi.com/v1/dolares/oficial")
+    .then((res) => res.json())
+    .then((d) => { if (d && d.venta > 0) { rate = d.venta; if (currency === "ARS") setCurrency("ARS"); } })
+    .catch(() => {});
 
   /* ---------- Formulario ---------- */
   const form = $("#lead-form");

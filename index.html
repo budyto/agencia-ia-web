@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;600;700&family=Host+Grotesk:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=202610221640">
+<link rel="stylesheet" href="styles.css?v=202610221649">
 <script>document.documentElement.classList.remove('no-js')</script>
 </head>
 <body>
@@ -410,17 +410,25 @@
       </div>
       <div class="roi">
         <div class="roi-in">
+          <div class="cur" role="group" aria-label="Moneda">
+            <span>Moneda</span>
+            <div class="cur-sw">
+              <button type="button" data-cur="USD" aria-pressed="true">USD</button>
+              <button type="button" data-cur="ARS" aria-pressed="false">ARS</button>
+            </div>
+            <small id="cur-rate"></small>
+          </div>
           <div class="field">
             <label for="r-people">Personas en tareas repetitivas <output id="o-people">3</output></label>
-            <input type="range" id="r-people" min="1" max="30" value="3">
+            <input type="range" id="r-people" min="1" max="50" value="3">
           </div>
           <div class="field">
             <label for="r-hours">Horas por semana, cada una <output id="o-hours">15 h</output></label>
-            <input type="range" id="r-hours" min="2" max="40" value="15">
+            <input type="range" id="r-hours" min="2" max="84" value="15">
           </div>
           <div class="field">
-            <label for="r-cost">Costo por hora (USD) <output id="o-cost">US$ 6</output></label>
-            <input type="range" id="r-cost" min="2" max="40" value="6">
+            <label for="r-cost">Costo por hora <output id="o-cost">US$ 6</output></label>
+            <input type="range" id="r-cost" min="1" max="150" step="1" value="6">
           </div>
           <div class="field">
             <label for="r-auto">Porcentaje automatizable <output id="o-auto">60%</output></label>
@@ -508,8 +516,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=202610221640"></script>
-<script src="main.js?v=202610221640"></script>
+<script src="config.js?v=202610221649"></script>
+<script src="main.js?v=202610221649"></script>
 </body>
 </html>
 

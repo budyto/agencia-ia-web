@@ -87,15 +87,21 @@
       // El caos que se ordena: las notificaciones vuelan desde posiciones al azar a su lugar en el tablero
       const tiles = $$(".tile");
       const rnd = (a, b) => a + Math.random() * (b - a);
+      // Arrancan invisibles y desparramadas: el inicio queda limpio, solo con el título
+      tiles.forEach((t) => gsap.set(t, {
+        x: rnd(-0.45, 0.45) * innerWidth, y: rnd(-0.38, 0.38) * innerHeight,
+        rotation: rnd(-18, 18), scale: rnd(0.85, 1.1), opacity: 0,
+      }));
+      // Cuando el título ya se fue, aparece el caos…
+      tl.to(tiles, { opacity: 0.95, duration: 0.5, stagger: 0.04 }, 1.0);
+      // …y después cada notificación vuela a su lugar en el tablero
       tiles.forEach((t) => {
-        tl.fromTo(t,
-          { x: () => rnd(-0.45, 0.45) * innerWidth, y: () => rnd(-0.38, 0.38) * innerHeight, rotation: rnd(-18, 18), scale: rnd(0.85, 1.1), opacity: 0.9 },
-          { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, duration: 2.4, ease: "power3.inOut" }, 0.9 + rnd(0, 0.5));
+        tl.to(t, { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, duration: 2.2, ease: "power3.inOut" }, 1.9 + rnd(0, 0.5));
       });
-      tl.to(".board-head", { opacity: 1, duration: 0.5 }, 3.4);
-      tiles.forEach((t, i) => tl.call(() => t.classList.toggle("done", tl.scrollTrigger.direction > 0), null, 3.6 + i * 0.08));
-      tl.to(".board", { opacity: 0, scale: 0.94, duration: 0.6 }, 5)
-        .fromTo(".v2-end", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8 }, 5.4)
+      tl.to(".board-head", { opacity: 1, duration: 0.5 }, 4.2);
+      tiles.forEach((t, i) => tl.call(() => t.classList.toggle("done", tl.scrollTrigger.direction > 0), null, 4.4 + i * 0.08));
+      tl.to(".board", { opacity: 0, scale: 0.94, duration: 0.6 }, 5.8)
+        .fromTo(".v2-end", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8 }, 6.2)
         .to({}, { duration: 0.5 });
     }
 

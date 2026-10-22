@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ember IA — Sistemas de IA que trabajan mientras dormís</title>
+<meta name="description" content="Bots de IA para WhatsApp, agentes de voz, cobranza, turnos y sistemas a medida. Diagnóstico gratis en 30 minutos.">
+<meta name="theme-color" content="#010102">
+<meta property="og:title" content="Ember IA — Sistemas de IA que trabajan mientras dormís">
+<meta property="og:description" content="Bots de WhatsApp, agentes de voz y sistemas a medida para empresas que quieren vender y operar sin fricción.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ff6b3d'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23010102'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;600;700&family=Host+Grotesk:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.remove('no-js')</script>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="#top" class="logo" aria-label="Ember IA, inicio"><span class="logo-mark"></span>Ember IA</a>
+    <nav class="nav-links" aria-label="Principal">
+      <a href="#demos">Demos</a>
+      <a href="#sistemas">Sistemas</a>
+      <a href="#casos">Casos</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#roi">Calculadora</a>
+    </nav>
+    <a href="#contacto" class="btn btn-primary">Diagnóstico gratis <span class="arr">→</span></a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO: 4 variantes que rotan en cada visita (ver main.js). ?hero=1..4 fuerza una. -->
+  <section class="hero" id="hero" data-variant="1">
+    <div class="hero-stage">
+      <div class="hero-grid"></div>
+      <div class="hero-glow"></div>
+
+      <!-- Texto compartido por las variantes 1, 2 y 3 -->
+      <div class="hero-copy">
+        <span class="eyebrow">Implementadora de IA a medida</span>
+        <h1 style="margin-top:22px">Tu empresa no duerme.<br><span class="em accent">Tus sistemas tampoco.</span></h1>
+        <p class="lead">Bots de WhatsApp, agentes de voz y software a medida para responder consultas, preparar pedidos y enviar recordatorios de pago. Definimos con vos qué automatizar y cuándo debe intervenir tu equipo.</p>
+        <div class="hero-cta">
+          <a href="#contacto" class="btn btn-primary">Agendá un diagnóstico <span class="arr">→</span></a>
+          <a href="#demos" class="btn">Ver demos en vivo</a>
+        </div>
+      </div>
+
+      <!-- 1 · Un día en tu empresa -->
+      <div class="v v1" data-v="1" aria-hidden="true">
+        <div class="v1-inner">
+          <div class="clock-wrap">
+            <span class="clock-label">Un día en tu empresa</span>
+            <div class="clock" id="clock">09:00</div>
+            <div class="clock-bar"><span id="clock-bar"></span></div>
+          </div>
+          <ol class="feed">
+            <li data-m="14"><time>09:14</time><b>WhatsApp</b><span>Respondió 43 consultas antes de que abras.</span></li>
+            <li data-m="122"><time>11:02</time><b>Documentos</b><span>Leyó 18 facturas y las cargó al sistema.</span></li>
+            <li data-m="270"><time>13:30</time><b>Turnos</b><span>Confirmó 12 turnos y cobró las señas.</span></li>
+            <li data-m="465"><time>16:45</time><b>Voz</b><span>Llamó a 31 clientes con cuotas vencidas.</span></li>
+            <li data-m="620"><time>19:20</time><b>CRM</b><span>Te marcó los 5 leads para llamar mañana.</span></li>
+            <li data-m="1031"><time>02:11</time><b>Ventas</b><span>Cerró una venta mientras dormías.</span></li>
+          </ol>
+        </div>
+        <div class="v-end v1-end">
+          <div class="big">Hoy tu equipo<br><span class="em accent">no tocó nada de esto.</span></div>
+          <p>Y mañana lo hace de nuevo.</p>
+        </div>
+      </div>
+
+      <!-- 2 · El caos que se ordena -->
+      <div class="v v2" data-v="2" aria-hidden="true">
+        <div class="board">
+          <div class="board-head"><span class="eyebrow">Tu operación · hoy</span><span class="live">TODO BAJO CONTROL</span></div>
+          <div class="tiles">
+            <div class="tile"><b>WhatsApp</b><span>23 mensajes sin leer</span><em></em></div>
+            <div class="tile"><b>Llamada perdida</b><span>11:42 · número desconocido</span><em></em></div>
+            <div class="tile"><b>factura_0034.pdf</b><span>sin cargar</span><em></em></div>
+            <div class="tile"><b>stock_final(2).xlsx</b><span>¿cuál es la última?</span><em></em></div>
+            <div class="tile"><b>Turno</b><span>lunes 10:00 sin confirmar</span><em></em></div>
+            <div class="tile"><b>Cuota vencida</b><span>M. Gómez · 12 días</span><em></em></div>
+            <div class="tile"><b>Lead de Instagram</b><span>preguntó precio ayer</span><em></em></div>
+            <div class="tile"><b>Transferencia</b><span>¿llegó o no llegó?</span><em></em></div>
+            <div class="tile"><b>Mail</b><span>presupuesto urgente</span><em></em></div>
+            <div class="tile"><b>Seña</b><span>pendiente de cobro</span><em></em></div>
+            <div class="tile"><b>Reclamo #482</b><span>envío demorado</span><em></em></div>
+            <div class="tile"><b>Lead</b><span>sin seguimiento hace 5 días</span><em></em></div>
+          </div>
+        </div>
+        <div class="v-end v2-end">
+          <div class="big">Del caos <span class="em accent">al tablero.</span></div>
+          <p>Consultas, pedidos y pendientes en un mismo lugar, con responsables y seguimiento.</p>
+        </div>
+      </div>
+
+      <!-- 3 · La voz -->
+      <div class="v v3" data-v="3" aria-hidden="true">
+        <div class="orb-xl"><div class="orb-xl-c"></div></div>
+        <div class="v3-lines">
+          <p class="ai"><span>Agente</span>Hola Laura, te llamo de la clínica para confirmar tu turno de mañana a las 10.</p>
+          <p class="hu"><span>Paciente</span>Uy, ¿lo puedo pasar a la tarde?</p>
+          <p class="ai"><span>Agente</span>Sí, tengo 16:30 con la misma doctora. ¿Te lo cambio?</p>
+          <p class="hu"><span>Paciente</span>Dale, perfecto.</p>
+          <p class="sys"><span>Sistema</span>Turno movido · agenda actualizada · recordatorio enviado</p>
+        </div>
+        <div class="v-end v3-end">
+          <div class="big">Una voz que atiende,<br><span class="em accent">llama y cobra.</span></div>
+          <p>En español, 24/7, sin tiempo de espera.</p>
+        </div>
+      </div>
+
+      <!-- 4 · Escribí tu problema -->
+      <div class="v v4" data-v="4">
+        <div class="v4-inner">
+          <span class="eyebrow">Diagnóstico instantáneo</span>
+          <h1>Contanos qué te frena.<br><span class="em accent">Te decimos qué te armaríamos.</span></h1>
+          <form class="ask" id="ask">
+            <label for="ask-input" class="sr">Describí tu problema</label>
+            <textarea id="ask-input" rows="2" placeholder="Ej: contestamos tarde los WhatsApp y perdemos ventas"></textarea>
+            <button class="btn btn-primary" type="submit">Ver solución <span class="arr">→</span></button>
+          </form>
+          <div class="ask-chips">
+            <button type="button">Perdemos ventas por WhatsApp</button>
+            <button type="button">Tenemos muchas cuotas atrasadas</button>
+            <button type="button">Dar turnos nos lleva el día</button>
+            <button type="button">Cargamos facturas a mano</button>
+          </div>
+          <div class="answer" id="answer" aria-live="polite" hidden></div>
+        </div>
+      </div>
+
+      <div class="scroll-hint">SCROLL<span></span></div>
+    </div>
+  </section>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Bots de WhatsApp</span><span>Agentes de voz</span><span>Cobranza automática</span><span>Turnos y agenda</span><span>CRM con IA</span><span>Lectura de documentos</span><span>Dashboards</span><span>E-commerce</span><span>Contenido con IA</span>
+      <span>Bots de WhatsApp</span><span>Agentes de voz</span><span>Cobranza automática</span><span>Turnos y agenda</span><span>CRM con IA</span><span>Lectura de documentos</span><span>Dashboards</span><span>E-commerce</span><span>Contenido con IA</span>
+    </div>
+  </div>
+
+  <!-- DOLORES -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head split">
+        <div>
+          <span class="eyebrow">Así nos llegan</span>
+          <h2 style="margin-top:20px">Nadie viene pidiendo IA.<br><span class="em">Vienen contando un problema.</span></h2>
+        </div>
+        <p class="lead">Si alguna de estas frases se dice en tu empresa, hay horas de trabajo que una máquina puede hacer mejor, más rápido y a las 3 de la mañana.</p>
+      </div>
+      <div class="pains">
+        <article class="pain rv">
+          <span class="tag">Comercio</span>
+          <blockquote>"Contestamos el WhatsApp a la mañana y el cliente ya le compró a otro."</blockquote>
+          <p class="fix"><b>→ Bot de ventas</b> que responde en segundos, con tu stock y tus precios.</p>
+        </article>
+        <article class="pain rv">
+          <span class="tag">Créditos</span>
+          <blockquote>"Cada solicitud son veinte papeles sueltos y alguien cargándolos a mano."</blockquote>
+          <p class="fix"><b>→ Lectura de documentos</b> y precalificación automática.</p>
+        </article>
+        <article class="pain rv">
+          <span class="tag">Salud y servicios</span>
+          <blockquote>"Entre dar el turno, confirmarlo y cobrar la seña se nos va el día."</blockquote>
+          <p class="fix"><b>→ Agente de turnos</b> por WhatsApp y por teléfono.</p>
+        </article>
+        <article class="pain rv">
+          <span class="tag">Cobranza</span>
+          <blockquote>"Tenemos 400 cuotas vencidas y dos personas llamando una por una."</blockquote>
+          <p class="fix"><b>→ Agente de voz</b> que envía recordatorios y links de pago, y deriva acuerdos especiales a tu equipo.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMOS -->
+  <section class="sec" id="demos" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Demos en vivo</span>
+        <h2>No te lo contamos.<br><span class="em">Miralo funcionar.</span></h2>
+      </div>
+      <div class="demos">
+        <article class="demo">
+          <div class="demo-head">
+            <div><h3>Vendedor IA en WhatsApp</h3><p>Responde, recomienda, cobra y deriva a una persona si hace falta.</p></div>
+            <span class="live">EN VIVO</span>
+          </div>
+          <div class="phone">
+            <div class="phone-bar"><span class="av"></span><div>Tu negocio<small id="wa-status">en línea</small></div></div>
+            <div class="chat" id="chat" aria-live="polite"></div>
+          </div>
+        </article>
+
+        <article class="demo">
+          <div class="demo-head">
+            <div><h3>Agente de voz</h3><p>Llama a clientes, confirma turnos y gestiona cobranza con voz natural.</p></div>
+            <span class="live">LLAMADA</span>
+          </div>
+          <div class="voice">
+            <div class="orb-wrap"><div class="orb" id="orb"></div><div class="orb-core"></div></div>
+            <div class="wave" id="wave"></div>
+            <div class="call-meta"><span id="call-who">Saliente · Cuota 4/12</span><span id="call-time">00:00</span></div>
+            <div class="transcript" id="transcript" aria-live="polite"></div>
+          </div>
+        </article>
+
+        <article class="demo wide">
+          <div class="demo-head">
+            <div><h3>Todo termina en un tablero</h3><p>Cada conversación, llamada y venta queda medida. Te llega el resumen diario por WhatsApp.</p></div>
+            <span class="live">HOY</span>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><small>Conversaciones atendidas</small><div class="v" data-count="1284">0</div><span class="d">100% en &lt; 10 s</span></div>
+            <div class="kpi"><small>Ventas cerradas por el bot</small><div class="v" data-count="96">0</div><span class="d">sin intervención</span></div>
+            <div class="kpi"><small>Cobranza recuperada</small><div class="v" data-count="3.4" data-prefix="$" data-suffix="M" data-dec="1">0</div><span class="d">por agente de voz</span></div>
+            <div class="kpi"><small>Horas de equipo liberadas</small><div class="v" data-count="212" data-suffix=" h">0</div><span class="d">este mes</span></div>
+          </div>
+          <div class="chart">
+            <svg viewBox="0 0 600 160" preserveAspectRatio="none" aria-label="Ventas por día, tendencia creciente">
+              <defs><linearGradient id="g-area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff6b3d" stop-opacity=".35"/><stop offset="1" stop-color="#ff6b3d" stop-opacity="0"/></linearGradient></defs>
+              <line class="gl" x1="0" x2="600" y1="40" y2="40"/><line class="gl" x1="0" x2="600" y1="80" y2="80"/><line class="gl" x1="0" x2="600" y1="120" y2="120"/>
+              <path class="ar" id="chart-area" d=""/>
+              <path class="ln" id="chart-line" d=""/>
+            </svg>
+            <div class="chart-legend"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div>
+          </div>
+          <p class="roi-note">Datos de ejemplo para la demo.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SISTEMAS -->
+  <section class="sec" id="sistemas" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head split">
+        <div>
+          <span class="eyebrow">Qué construimos</span>
+          <h2 style="margin-top:20px">Sistemas, no <span class="em">herramientas sueltas.</span></h2>
+        </div>
+        <p class="lead">Cada uno se conecta a lo que ya usás: WhatsApp, Mercado Pago, Google, tu planilla o tu sistema de gestión.</p>
+      </div>
+      <div class="bento">
+        <article class="svc xl rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12Z"/></svg></div>
+          <span class="num">01</span>
+          <h3>Bot de IA para WhatsApp</h3>
+          <p>Atiende 24/7 con tu catálogo, precios y políticas. Califica al cliente, toma el pedido, manda el link de pago y pasa a una persona cuando conviene.</p>
+          <ul><li>Ventas</li><li>Soporte</li><li>Catálogo</li><li>Derivación humana</li></ul>
+        </article>
+        <article class="svc xl rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M8 7v10M4 10v4M16 7v10M20 10v4"/></svg></div>
+          <span class="num">02</span>
+          <h3>Agente de voz (llamadas)</h3>
+          <p>Recibe y hace llamadas con voz natural en español rioplatense: confirma turnos, hace cobranza amable, encuestas y seguimiento de leads.</p>
+          <ul><li>Entrantes</li><li>Salientes</li><li>Transcripción</li><li>Resumen al CRM</li></ul>
+        </article>
+        <article class="svc rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div>
+          <span class="num">03</span>
+          <h3>Cobranza automática</h3>
+          <p>Recordatorios escalonados, link de pago y conciliación. Sabés quién pagó sin abrir el banco.</p>
+          <ul><li>Mercado Pago</li><li>Cuotas</li></ul>
+        </article>
+        <article class="svc rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+          <span class="num">04</span>
+          <h3>Turnos y agenda</h3>
+          <p>Reserva, solicitud de seña, confirmación y recordatorio, con derivación a tu equipo para excepciones.</p>
+          <ul><li>Salud</li><li>Belleza</li><li>Canchas</li></ul>
+        </article>
+        <article class="svc rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11l2 2 4-4"/></svg></div>
+          <span class="num">05</span>
+          <h3>CRM con IA</h3>
+          <p>WhatsApp, Instagram y mail en una bandeja. La IA te dice a quién llamar primero.</p>
+          <ul><li>Scoring</li><li>Inbox unificado</li></ul>
+        </article>
+        <article class="svc rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+          <span class="num">06</span>
+          <h3>Lectura de documentos</h3>
+          <p>Facturas, DNI, recibos y comprobantes: la IA los lee y carga los datos donde van.</p>
+          <ul><li>OCR + IA</li><li>Validación</li></ul>
+        </article>
+        <article class="svc rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div>
+          <span class="num">07</span>
+          <h3>Dashboards y reportes</h3>
+          <p>Ventas, caja y operación en un tablero. Y un resumen diario que te llega solo.</p>
+          <ul><li>Tiempo real</li><li>Alertas</li></ul>
+        </article>
+        <article class="svc rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></div>
+          <span class="num">08</span>
+          <h3>E-commerce con vendedor IA</h3>
+          <p>Tienda online con panel de admin y un bot que vende por WhatsApp desde el catálogo.</p>
+          <ul><li>Catálogo</li><li>Admin</li><li>Pedidos</li></ul>
+        </article>
+        <article class="svc xl rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+          <span class="num">09</span>
+          <h3>Asistente interno con tu conocimiento</h3>
+          <p>Un asistente que responde con tus manuales, listas de precios y procesos. Tu equipo nuevo deja de preguntar lo mismo cada día.</p>
+          <ul><li>Base de conocimiento</li><li>Permisos</li><li>Slack / WhatsApp</li></ul>
+        </article>
+        <article class="svc xl rv">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></div>
+          <span class="num">10</span>
+          <h3>Contenido con IA</h3>
+          <p>Videos cortos, posteos y fotos de producto generados a partir de tu catálogo. Volumen de agencia, costo de herramienta.</p>
+          <ul><li>Reels</li><li>Fotos de producto</li><li>Copys</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CASOS -->
+  <section class="sec" id="casos" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head split">
+        <div>
+          <span class="eyebrow">Casos</span>
+          <h2 style="margin-top:20px">Sistemas que hoy usa <span class="em accent">gente real.</span></h2>
+        </div>
+        <p class="lead">Proyectos en producción. Algunos clientes prefieren no figurar con nombre; los resultados sí se pueden mostrar en la reunión.</p>
+      </div>
+      <div class="cases">
+        <article class="case rv">
+          <div class="case-top"><span class="kind">E-commerce · WhatsApp</span><span class="pill">En producción</span></div>
+          <h3>Tiendas de calzado deportivo con pedidos por WhatsApp</h3>
+          <div class="who">Retail deportivo · Argentina</div>
+          <p>Catálogo por marca y modelo, talles y stock, y el pedido llega armado al WhatsApp del vendedor. Sin carrito que se abandona.</p>
+          <div class="stack"><span>HTML/JS</span><span>WhatsApp</span><span>Netlify</span></div>
+        </article>
+        <article class="case rv">
+          <div class="case-top"><span class="kind">Fintech · Software a medida</span><span class="pill">Créditos</span></div>
+          <h3>Plataforma de créditos e inversiones</h3>
+          <div class="who">Financiera · Argentina</div>
+          <p>Solicitud online, simulador de cuotas y panel de seguimiento. Base lista para sumar lectura de documentos y cobranza con agente de voz.</p>
+          <div class="stack"><span>Web app</span><span>Simulador</span><span>Panel</span></div>
+        </article>
+        <article class="case rv">
+          <div class="case-top"><span class="kind">E-commerce · Admin</span><span class="pill">Tienda + panel</span></div>
+          <h3>Tienda de belleza con panel de administración</h3>
+          <div class="who">Cosmética · Argentina</div>
+          <p>Tienda, panel de admin y base de datos propia. El dueño carga productos y ve pedidos sin depender de nadie.</p>
+          <div class="stack"><span>Supabase</span><span>Netlify</span><span>Admin</span></div>
+        </article>
+        <article class="case rv">
+          <div class="case-top"><span class="kind">Gestión · Dashboard</span><span class="pill">Tiempo real</span></div>
+          <h3>Concesionaria y tableros de gestión</h3>
+          <div class="who">Motos y electro · Argentina</div>
+          <p>Stock, ventas y financiación en un mismo lugar, con tableros que muestran la operación del día sin abrir planillas.</p>
+          <div class="stack"><span>Dashboard</span><span>Stock</span><span>Ventas</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESO -->
+  <section class="sec" id="proceso" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Cómo trabajamos</span>
+        <h2>Un alcance claro.<br><span class="em">Un plan para implementarlo.</span></h2>
+      </div>
+      <div class="steps" id="steps">
+        <div class="bar" id="steps-bar"></div>
+        <div class="step"><div class="dot">01</div><span class="when">30 minutos · gratis</span><h3>Diagnóstico</h3><p>Nos contás qué no funciona. Salís sabiendo si la IA lo resuelve, cuánto tarda y qué hace falta.</p></div>
+        <div class="step"><div class="dot">02</div><span class="when">Según alcance acordado</span><h3>Prototipo</h3><p>Lo ves funcionar con tus datos antes de comprometer el proyecto completo.</p></div>
+        <div class="step"><div class="dot">03</div><span class="when">Con validación de tu equipo</span><h3>Implementación</h3><p>Lo conectamos a tus sistemas, lo probamos con tu equipo y lo ponemos en producción.</p></div>
+        <div class="step"><div class="dot">04</div><span class="when">Mes a mes</span><h3>Operación y mejora</h3><p>Monitoreo, ajustes y nuevas automatizaciones. El sistema mejora con el uso.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROI -->
+  <section class="sec" id="roi" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Calculadora</span>
+        <h2>¿Cuánto te cuesta <span class="em">hacerlo a mano?</span></h2>
+      </div>
+      <div class="roi">
+        <div class="roi-in">
+          <div class="field">
+            <label for="r-people">Personas en tareas repetitivas <output id="o-people">3</output></label>
+            <input type="range" id="r-people" min="1" max="30" value="3">
+          </div>
+          <div class="field">
+            <label for="r-hours">Horas por semana, cada una <output id="o-hours">15 h</output></label>
+            <input type="range" id="r-hours" min="2" max="40" value="15">
+          </div>
+          <div class="field">
+            <label for="r-cost">Costo por hora (USD) <output id="o-cost">US$ 6</output></label>
+            <input type="range" id="r-cost" min="2" max="40" value="6">
+          </div>
+          <div class="field">
+            <label for="r-auto">Porcentaje automatizable <output id="o-auto">60%</output></label>
+            <input type="range" id="r-auto" min="20" max="90" step="5" value="60">
+          </div>
+        </div>
+        <div class="roi-out">
+          <small>Lo que podrías ahorrar por año</small>
+          <div class="big" id="roi-year">US$ 0</div>
+          <div class="sub">
+            <div><b id="roi-hours">0 h</b><span>liberadas por mes</span></div>
+            <div><b id="roi-month">US$ 0</b><span>por mes</span></div>
+          </div>
+          <a href="#contacto" class="btn btn-primary" id="roi-cta">Quiero bajar ese número <span class="arr">→</span></a>
+          <p class="roi-note">Estimación orientativa. En el diagnóstico la hacemos con tus números reales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Preguntas</span><h2>Lo que todos <span class="em">preguntan primero.</span></h2></div>
+      <div class="faq">
+        <details><summary>¿Necesito saber de tecnología?</summary><p>No. Vos nos contás cómo trabaja tu equipo y dónde se traba. La parte técnica es nuestra.</p></details>
+        <details><summary>¿El bot puede equivocarse con un cliente?</summary><p>Usamos información aprobada por tu negocio y definimos reglas de derivación a una persona. Puede cometer errores: acordamos qué acciones requieren confirmación humana y cómo revisar las conversaciones.</p></details>
+        <details><summary>¿Funciona con el WhatsApp que ya uso?</summary><p>Revisamos tu configuración actual y los requisitos de la integración oficial antes de confirmar cómo conectar tu número y cómo intervendrá tu equipo.</p></details>
+        <details><summary>¿Cuánto cuesta?</summary><p>Depende del sistema. Trabajamos con un costo de implementación y un abono mensual que incluye hosting, mantenimiento y mejoras. En el diagnóstico te damos un número concreto.</p></details>
+        <details><summary>¿Cuánto tarda?</summary><p>Después del relevamiento definimos el alcance y un cronograma. El plazo depende de las integraciones, la disponibilidad de información y accesos, y las pruebas con tu equipo. Antes de empezar acordamos entregables y fechas.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section class="sec" id="contacto" style="padding-top:0">
+    <div class="wrap contact">
+      <div>
+        <span class="eyebrow">Diagnóstico gratis</span>
+        <h2 style="margin-top:20px">Llegá con el problema.<br><span class="em accent">Del resto nos ocupamos.</span></h2>
+        <div class="promise">
+          <div><i>01</i><p><b>Si la IA lo resuelve o no.</b><span>Y si no, te lo decimos ahí mismo.</span></p></div>
+          <div><i>02</i><p><b>Un plazo concreto.</b><span>Para tu caso, no un rango de folleto.</span></p></div>
+          <div><i>03</i><p><b>Qué hace falta de tu lado.</b><span>Sistemas, personas y tiempo. Sin sorpresas.</span></p></div>
+        </div>
+      </div>
+      <form class="lead-form" id="lead-form" novalidate>
+        <div class="row">
+          <label>Nombre<input name="nombre" required autocomplete="name"></label>
+          <label>WhatsApp<input name="whatsapp" type="tel" required autocomplete="tel" placeholder="+54 9 ..."></label>
+        </div>
+        <div class="row">
+          <label>Empresa<input name="empresa" autocomplete="organization"></label>
+          <label>Rubro
+            <select name="rubro">
+              <option>Comercio / E-commerce</option><option>Créditos / Finanzas</option><option>Salud</option><option>Inmobiliaria</option><option>Servicios</option><option>Otro</option>
+            </select>
+          </label>
+        </div>
+        <label>¿Qué te gustaría resolver?<textarea name="problema" required placeholder="Ej: contestamos tarde los WhatsApp y perdemos ventas"></textarea></label>
+        <input class="hp" name="web" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn btn-primary" type="submit">Pedir diagnóstico <span class="arr">→</span></button>
+        <p class="form-msg" id="form-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div><a href="#top" class="logo"><span class="logo-mark"></span>Ember IA</a><p>Sistemas de IA a medida para empresas que quieren vender y operar sin fricción.</p></div>
+      <div><h4>Sistemas</h4><ul><li><a href="#sistemas">Bots de WhatsApp</a></li><li><a href="#sistemas">Agentes de voz</a></li><li><a href="#sistemas">Cobranza</a></li><li><a href="#sistemas">Software a medida</a></li></ul></div>
+      <div><h4>Agencia</h4><ul><li><a href="#casos">Casos</a></li><li><a href="#proceso">Proceso</a></li><li><a href="#roi">Calculadora</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li><a href="#" data-wa>WhatsApp</a></li><li><a href="mailto:hola@ember-ia.com" id="mail-link">hola@ember-ia.com</a></li><li>Argentina · Remoto</li></ul></div>
+    </div>
+    <div class="foot-bottom"><span>© <span id="year"></span> Ember IA</span><span>Hecho con IA, revisado por humanos.</span></div>
+  </div>
+</footer>
+
+<a class="wa-float" href="#" data-wa aria-label="Escribinos por WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 2.5 1 3 .8 3.6.7.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.2-.3-.3-.6-.4ZM12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Z"/></svg>
+</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
+

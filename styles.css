@@ -272,7 +272,7 @@ section { position: relative; }
 .phone-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #1f2c34; font-size: 14px; }
 .phone-bar .av { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--peach)); }
 .phone-bar small { display: block; color: #8696a0; font-size: 12px; }
-.chat { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; justify-content: flex-end; min-height: 340px; }
+.chat { padding: 16px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; justify-content: flex-end; flex: none; height: 380px; }
 .msg { max-width: 82%; padding: 8px 12px; border-radius: 10px; font-size: 14px; line-height: 1.45; animation: pop .35s cubic-bezier(.2,.8,.2,1); }
 .msg.in { background: #202c33; align-self: flex-start; border-top-left-radius: 2px; }
 .msg.out { background: #005c4b; align-self: flex-end; border-top-right-radius: 2px; }
@@ -299,7 +299,7 @@ section { position: relative; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .wave { display: flex; align-items: center; justify-content: center; gap: 3px; height: 36px; }
 .wave i { width: 3px; border-radius: 3px; background: var(--ink-3); height: 6px; transition: height .12s; }
-.transcript { background: var(--s2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 14px; min-height: 132px; display: flex; flex-direction: column; gap: 8px; }
+.transcript { background: var(--s2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 14px; height: 172px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; }
 .transcript div { animation: pop .3s; }
 .transcript .who { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); margin-right: 8px; }
 .transcript .ai .who { color: var(--accent); }
@@ -465,9 +465,7 @@ footer { border-top: 1px solid var(--line); padding: 56px 0 40px; }
   .hero { height: 300vh; }
   .foot { grid-template-columns: 1fr; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-}
+
 
 /* Números y titulares grandes con la tipografía display */
 .result .big, .kpi .v, .roi-out .big, .roi-out .sub b, .logo { font-family: var(--display); }

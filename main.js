@@ -1,7 +1,8 @@
 (() => {
   const cfg = window.SITE || {};
-  // ?motion=1 fuerza las animaciones aunque el sistema pida reducir movimiento (para pruebas)
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches && !/[?&]motion=1/.test(location.search);
+  // Las animaciones son parte de la experiencia: corren siempre, aunque Windows o el
+  // celular tengan "reducir movimiento" activado. ?motion=0 las apaga (versión estática).
+  const reduced = /[?&]motion=0/.test(location.search);
   const hasGsap = !!(window.gsap && window.ScrollTrigger);
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -276,7 +277,7 @@
         d.className = who;
         d.innerHTML = `<span class="who">${who === "ai" ? "Agente" : "Cliente"}</span>${text}`;
         tr.appendChild(d);
-        while (tr.children.length > 3) tr.firstElementChild.remove();
+        while (tr.children.length > 3 || (tr.scrollHeight > tr.clientHeight && tr.children.length > 1)) tr.firstElementChild.remove();
         await wait(reduced ? 300 : 900 + text.length * 32);
         speaking = null;
         await wait(450);

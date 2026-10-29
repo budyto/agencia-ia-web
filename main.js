@@ -11,7 +11,7 @@
   /* ---------- Básicos ---------- */
   $("#year").textContent = new Date().getFullYear();
   const waUrl = (text) => `https://wa.me/${cfg.whatsapp}?text=${encodeURIComponent(text)}`;
-  $$("[data-wa]").forEach((a) => { a.href = waUrl(cfg.whatsappText || ""); a.target = "_blank"; a.rel = "noopener"; });
+  $$("[data-wa]").forEach((a) => { a.href = waUrl(a.dataset.waText || cfg.whatsappText || ""); a.target = "_blank"; a.rel = "noopener"; });
 
   const nav = $("#nav");
   const onScroll = () => nav.classList.toggle("scrolled", scrollY > 20);

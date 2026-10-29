@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reseñas · Panel</title>
+<!-- PANEL DE RESEÑAS (29/10/2026): alta, edición, foto y borrado de las reseñas que muestra la web.
+     Habla con /resenas/api.php; la clave queda sólo en esta pestaña (sessionStorage). -->
+<style>
+  :root { --bg:#0a0a0a; --s1:#131313; --s2:#1b1b1b; --line:#2a2a2a; --ink:#f5f5f5; --ink-3:#a3a3a3; --gold:#efca70; --err:#ff8a7a; --ok:#3ccf7a; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 22px 16px 60px; }
+  h1 { font-size: 20px; margin: 0 0 4px; } .sub { color: var(--ink-3); margin: 0 0 20px; font-size: 14px; }
+  input, textarea, select, button { font: inherit; }
+  input[type=text], input[type=password], textarea, select { width: 100%; background: var(--s1); border: 1px solid var(--line); color: var(--ink); border-radius: 10px; padding: 10px 12px; }
+  textarea { min-height: 100px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+  .btn { background: var(--gold); color: #141414; border: 0; border-radius: 10px; padding: 10px 16px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn.gris { background: var(--s2); color: var(--ink); border: 1px solid var(--line); }
+  .btn.rojo { background: none; color: var(--err); border: 1px solid rgba(255,138,122,.35); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .entrar { display: flex; gap: 10px; max-width: 420px; }
+  .msg { min-height: 20px; font-size: 14px; color: var(--err); margin: 8px 0; } .msg.ok { color: var(--ok); }
+  .barra { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  li { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; background: var(--s1); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  li.oculta { opacity: .55; }
+  .av { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--gold); color: #141414; display: grid; place-items: center; font-weight: 700; font-size: 20px; }
+  .txt { min-width: 0; } .txt b { font-weight: 600; } .txt small { color: var(--ink-3); }
+  .txt p { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .est { color: var(--gold); letter-spacing: 1px; }
+  .chip { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--ink-3); margin-left: 6px; }
+  .acc { display: flex; gap: 8px; } .acc .btn { padding: 7px 12px; font-size: 13px; }
+  form.ficha { background: var(--s1); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; grid-template-columns: 120px 1fr; gap: 16px; margin-bottom: 18px; }
+  .foto { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .foto .av { width: 104px; height: 104px; font-size: 34px; }
+  .foto label { font-size: 13px; color: var(--gold); cursor: pointer; } .foto button { background: none; border: 0; color: var(--ink-3); font-size: 12px; cursor: pointer; }
+  .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .campos label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-3); }
+  .campos .ancho { grid-column: 1 / -1; }
+  .check { flex-direction: row !important; align-items: center; gap: 8px !important; color: var(--ink) !important; font-size: 14px !important; }
+  .pie { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+  .vacio { text-align: center; color: var(--ink-3); padding: 30px; border: 1px dashed var(--line); border-radius: 12px; }
+  @media (max-width: 620px) {
+    form.ficha { grid-template-columns: 1fr; } .campos { grid-template-columns: 1fr; }
+    li { grid-template-columns: 48px 1fr; } .av { width: 48px; height: 48px; } .acc { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reseñas de clientes</h1>
+  <p class="sub">Lo que cargues acá aparece en la web, en la sección de reseñas. Las ocultas no se muestran.</p>
+
+  <form id="entrar" class="entrar" hidden>
+    <input type="password" id="clave" placeholder="Clave del panel" autocomplete="current-password" required>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+  <p class="msg" id="msg"></p>
+
+  <section id="panel" hidden>
+    <div class="barra">
+      <button class="btn" id="nueva" type="button">+ Nueva reseña</button>
+      <span><a class="btn gris" href="/" target="_blank" rel="noopener" style="text-decoration:none">Ver la web</a>
+      <button class="btn gris" id="salir" type="button">Salir</button></span>
+    </div>
+
+    <form class="ficha" id="ficha" hidden>
+      <div class="foto">
+        <div class="av" id="fprev"></div>
+        <label>Subir foto<input type="file" id="farch" accept="image/*" hidden></label>
+        <button type="button" id="fquitar">Quitar foto</button>
+      </div>
+      <div class="campos">
+        <label>Nombre y apellido<input type="text" name="nombre" maxlength="60" required></label>
+        <label>Detalle (opcional)<input type="text" name="detalle" maxlength="80" placeholder="Ej. Dueño de Financiera Sur"></label>
+        <label>Estrellas<select name="estrellas"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+        <label>Orden (menor, primero)<input type="text" name="orden" inputmode="numeric" value="0"></label>
+        <label class="ancho">Reseña<textarea name="texto" maxlength="600" required></textarea></label>
+        <label class="check ancho"><input type="checkbox" name="publicada" checked> Publicada en la web</label>
+        <div class="pie"><button class="btn" type="submit">Guardar</button><button class="btn gris" type="button" id="cancelar">Cancelar</button><span class="msg" id="fmsg"></span></div>
+      </div>
+    </form>
+
+    <ul id="lista"></ul>
+  </section>
+</div>
+<script>
+(() => {
+  const API = '/resenas/api.php', K = 'resenas_clave';
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const clave = () => { try { return sessionStorage.getItem(K) || ''; } catch (e) { return ''; } };
+  const setClave = (v) => { try { v ? sessionStorage.setItem(K, v) : sessionStorage.removeItem(K); } catch (e) {} };
+  let todas = [], editando = null, fotoNueva = null, quitarFoto = false;
+
+  async function pedir(cuerpo) {
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Clave': clave() }, body: JSON.stringify(cuerpo) });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) { setClave(''); mostrarEntrar('Clave incorrecta.'); throw new Error('401'); }
+    if (!r.ok) throw new Error(j.error || 'Error ' + r.status);
+    return j;
+  }
+  const avatar = (r, cls) => r.foto ? '<img class="' + cls + '" src="' + esc(r.foto) + '" alt="">' : '<span class="' + cls + '">' + esc((r.nombre || '?').trim().charAt(0).toUpperCase()) + '</span>';
+
+  function pintar() {
+    $('#lista').innerHTML = todas.length ? todas.map((r) =>
+      '<li class="' + (r.publicada ? '' : 'oculta') + '">' + avatar(r, 'av')
+      + '<div class="txt"><b>' + esc(r.nombre) + '</b> <span class="est">' + '★'.repeat(r.estrellas) + '</span>'
+      + (r.publicada ? '' : '<span class="chip">oculta</span>') + (r.detalle ? '<br><small>' + esc(r.detalle) + '</small>' : '')
+      + '<p>' + esc(r.texto) + '</p></div>'
+      + '<div class="acc"><button class="btn gris" data-editar="' + r.id + '">Editar</button><button class="btn rojo" data-borrar="' + r.id + '">Borrar</button></div></li>').join('')
+      : '<li class="vacio" style="display:block">Todavía no hay reseñas. Tocá “+ Nueva reseña”.</li>';
+  }
+  async function cargar() {
+    $('#msg').textContent = '';
+    try {
+      todas = (await pedir({ accion: 'listar' })).resenas || [];
+      $('#entrar').hidden = true; $('#panel').hidden = false; pintar();
+    } catch (e) { if (e.message !== '401') $('#msg').textContent = 'No se pudo leer: ' + e.message; }
+  }
+  function mostrarEntrar(t) { $('#panel').hidden = true; $('#entrar').hidden = false; $('#msg').textContent = t || ''; $('#clave').value = ''; $('#clave').focus(); }
+
+  function abrir(r) {
+    editando = r; fotoNueva = null; quitarFoto = false;
+    const f = $('#ficha');
+    f.nombre.value = r ? r.nombre : ''; f.detalle.value = r ? r.detalle : ''; f.texto.value = r ? r.texto : '';
+    f.estrellas.value = r ? r.estrellas : 5; f.orden.value = r ? r.orden : 0; f.publicada.checked = r ? r.publicada : true;
+    $('#fmsg').textContent = ''; prevFoto(r && r.foto); f.hidden = false; f.nombre.focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function prevFoto(src) {
+    const p = $('#fprev'); const n = $('#ficha').nombre.value.trim();
+    p.innerHTML = src ? '<img src="' + esc(src) + '" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">' : esc(n.charAt(0).toUpperCase() || '?');
+  }
+  // La foto se achica a 256×256 (recorte cuadrado al centro) antes de subirla.
+  function achicar(archivo) {
+    return new Promise((ok, mal) => {
+      const img = new Image(); const url = URL.createObjectURL(archivo);
+      img.onload = () => {
+        const L = 256, c = document.createElement('canvas'); c.width = c.height = L;
+        const lado = Math.min(img.width, img.height);
+        c.getContext('2d').drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, L, L);
+        URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => mal(new Error('No se pudo leer la imagen.'));
+      img.src = url;
+    });
+  }
+
+  $('#entrar').addEventListener('submit', (e) => { e.preventDefault(); setClave($('#clave').value); cargar(); });
+  $('#salir').addEventListener('click', () => { setClave(''); mostrarEntrar(''); });
+  $('#nueva').addEventListener('click', () => abrir(null));
+  $('#cancelar').addEventListener('click', () => { $('#ficha').hidden = true; });
+  $('#ficha').nombre.addEventListener('input', () => { if (!fotoNueva && !(editando && editando.foto && !quitarFoto)) prevFoto(''); });
+  $('#farch').addEventListener('change', async (e) => {
+    const a = e.target.files[0]; if (!a) return;
+    try { fotoNueva = await achicar(a); quitarFoto = false; prevFoto(fotoNueva); } catch (err) { $('#fmsg').textContent = err.message; }
+    e.target.value = '';
+  });
+  $('#fquitar').addEventListener('click', () => { fotoNueva = null; quitarFoto = true; prevFoto(''); });
+  $('#ficha').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target, b = f.querySelector('button[type=submit]');
+    b.disabled = true; $('#fmsg').className = 'msg'; $('#fmsg').textContent = 'Guardando…';
+    try {
+      await pedir({ accion: 'guardar', foto: fotoNueva, quitarFoto, resena: {
+        id: editando ? editando.id : '', nombre: f.nombre.value, detalle: f.detalle.value, texto: f.texto.value,
+        estrellas: +f.estrellas.value, orden: parseInt(f.orden.value, 10) || 0, publicada: f.publicada.checked } });
+      f.hidden = true; await cargar();
+    } catch (err) { if (err.message !== '401') $('#fmsg').textContent = err.message; }
+    b.disabled = false;
+  });
+  $('#lista').addEventListener('click', async (e) => {
+    const ed = e.target.closest('[data-editar]'), bo = e.target.closest('[data-borrar]');
+    if (ed) abrir(todas.find((r) => r.id === ed.dataset.editar));
+    if (bo) {
+      const r = todas.find((x) => x.id === bo.dataset.borrar);
+      if (!confirm('¿Borrar la reseña de ' + r.nombre + '? No se puede deshacer.')) return;
+      try { await pedir({ accion: 'borrar', id: r.id }); await cargar(); } catch (err) { if (err.message !== '401') $('#msg').textContent = err.message; }
+    }
+  });
+
+  clave() ? cargar() : mostrarEntrar('');
+})();
+</script>
+</body>
+</html>

@@ -1,1 +1,6 @@
 .claude/
+# Reseñas: los datos y las fotos se cargan desde /admin en el servidor, no van en git
+resenas/data/
+resenas/fotos/*
+!resenas/fotos/.htaccess
+resenas/config.local.php

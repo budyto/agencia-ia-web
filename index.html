@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;600;700&family=Host+Grotesk:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=202610221649">
+<link rel="stylesheet" href="resenas/resenas.css?v=1">
 <script>document.documentElement.classList.remove('no-js')</script>
 </head>
 <body>
@@ -384,6 +385,17 @@
     </div>
   </section>
 
+  <!-- RESEÑAS: se cargan desde /admin (resenas/api.php). Sin reseñas publicadas, la sección no se muestra. -->
+  <section class="sec" id="resenas" style="padding-top:0" hidden>
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Reseñas</span>
+        <h2>Lo que dicen <span class="em">nuestros clientes.</span></h2>
+      </div>
+      <div class="res-grid" id="resenas-lista"></div>
+    </div>
+  </section>
+
   <!-- PROCESO -->
   <section class="sec" id="proceso" style="padding-top:0">
     <div class="wrap">
@@ -518,6 +530,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js?v=202610221649"></script>
 <script src="main.js?v=202610221649"></script>
+<script src="resenas/resenas.js?v=1"></script>
 </body>
 </html>
 

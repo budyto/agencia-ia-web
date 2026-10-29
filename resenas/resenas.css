@@ -1,0 +1,20 @@
+/* Reseñas de clientes. Toma los colores de la web (--accent, --ink, --line…) con respaldo propio. */
+#resenas[hidden] { display: none !important; }
+.res-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 32px; }
+.res-card { margin: 0; padding: 22px; border-radius: 16px; display: flex; flex-direction: column; gap: 16px;
+  background: rgba(255,255,255,.03); border: 1px solid var(--line, rgba(255,255,255,.1)); }
+.res-estrellas { color: var(--accent, #efca70); letter-spacing: 2px; font-size: 15px; }
+.res-estrellas i { font-style: normal; opacity: .25; }
+.res-card blockquote { margin: 0; flex: 1; color: var(--ink-2, #d0d6e0); font-size: 16px; line-height: 1.55; }
+.res-card figcaption { display: flex; align-items: center; gap: 12px; }
+.res-card figcaption img, .res-ini { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: none;
+  border: 1px solid var(--line, rgba(255,255,255,.15)); }
+.res-ini { display: grid; place-items: center; font-weight: 700; font-size: 18px;
+  background: var(--accent, #efca70); color: var(--accent-ink, #141414); }
+.res-card figcaption b { display: block; color: var(--ink, #fff); font-weight: 600; }
+.res-card figcaption small { display: block; color: var(--ink-3, #a6abb4); font-size: 13px; }
+@media (max-width: 640px) {
+  .res-grid { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 85%; overflow-x: auto;
+    scroll-snap-type: x mandatory; padding-bottom: 8px; }
+  .res-card { scroll-snap-align: start; }
+}

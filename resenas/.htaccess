@@ -1,0 +1,10 @@
+# Los datos y la configuración no se sirven nunca; las fotos sí, pero sólo como imágenes.
+<FilesMatch "^(config\.php)$">
+  Require all denied
+</FilesMatch>
+RedirectMatch 404 ^/resenas/data(/.*)?$
+<IfModule mod_headers.c>
+  <FilesMatch "\.(jpg|png|webp)$">
+    Header set X-Content-Type-Options "nosniff"
+  </FilesMatch>
+</IfModule>

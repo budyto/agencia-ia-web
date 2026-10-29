@@ -6,11 +6,13 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Reseñas · Panel</title>
 <!-- PANEL DE RESEÑAS (29/10/2026): alta, edición, foto y borrado de las reseñas que muestra la web.
-     Habla con /resenas/api.php; la clave queda sólo en esta pestaña (sessionStorage). -->
+     Habla con /resenas/api.php. Cómo se entra lo dice la web (api.php?config): con Google, o con la
+     misma sesión del panel /admin (en miscreditos.app va adentro de /admin, en una pestaña). -->
 <style>
   :root { --bg:#0a0a0a; --s1:#131313; --s2:#1b1b1b; --line:#2a2a2a; --ink:#f5f5f5; --ink-3:#a3a3a3; --gold:#efca70; --err:#ff8a7a; --ok:#3ccf7a; }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
+  body.embebido h1, body.embebido .sub, body.embebido #salir { display: none; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
   .wrap { max-width: 920px; margin: 0 auto; padding: 22px 16px 60px; }
   h1 { font-size: 20px; margin: 0 0 4px; } .sub { color: var(--ink-3); margin: 0 0 20px; font-size: 14px; }
@@ -55,10 +57,10 @@
   <h1>Reseñas de clientes</h1>
   <p class="sub">Lo que cargues acá aparece en la web, en la sección de reseñas. Las ocultas no se muestran.</p>
 
-  <form id="entrar" class="entrar" hidden>
-    <input type="password" id="clave" placeholder="Clave del panel" autocomplete="current-password" required>
-    <button class="btn" type="submit">Entrar</button>
-  </form>
+  <div id="entrar" class="entrar" hidden>
+    <div id="gboton"></div>
+    <a id="irpanel" class="btn" href="/admin/" target="_top" hidden style="text-decoration:none">Ir al panel</a>
+  </div>
   <p class="msg" id="msg"></p>
 
   <section id="panel" hidden>
@@ -90,17 +92,21 @@
 </div>
 <script>
 (() => {
-  const API = '/resenas/api.php', K = 'resenas_clave';
+  const API = '/resenas/api.php', KG = 'resenas_google', KP = 'mc_panel_clave';
+  let modo = 'google';
+  if (window.self !== window.top) document.body.classList.add('embebido');
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const clave = () => { try { return sessionStorage.getItem(K) || ''; } catch (e) { return ''; } };
-  const setClave = (v) => { try { v ? sessionStorage.setItem(K, v) : sessionStorage.removeItem(K); } catch (e) {} };
+  // La sesión: el token de Google (modo google) o la clave del panel /admin (modo panel), que
+  // ya está en esta pestaña porque el panel la guardó al entrar.
+  const clave = () => { try { return sessionStorage.getItem(modo === 'panel' ? KP : KG) || ''; } catch (e) { return ''; } };
+  const setClave = (v) => { if (modo === 'panel') return; try { v ? sessionStorage.setItem(KG, v) : sessionStorage.removeItem(KG); } catch (e) {} };
   let todas = [], editando = null, fotoNueva = null, quitarFoto = false;
 
   async function pedir(cuerpo) {
-    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Clave': clave() }, body: JSON.stringify(cuerpo) });
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave() }, body: JSON.stringify(cuerpo) });
     const j = await r.json().catch(() => ({}));
-    if (r.status === 401) { setClave(''); mostrarEntrar('Clave incorrecta.'); throw new Error('401'); }
+    if (r.status === 401) { setClave(''); mostrarEntrar(j.error || 'Tu sesión venció.'); throw new Error('401'); }
     if (!r.ok) throw new Error(j.error || 'Error ' + r.status);
     return j;
   }
@@ -122,7 +128,10 @@
       $('#entrar').hidden = true; $('#panel').hidden = false; pintar();
     } catch (e) { if (e.message !== '401') $('#msg').textContent = 'No se pudo leer: ' + e.message; }
   }
-  function mostrarEntrar(t) { $('#panel').hidden = true; $('#entrar').hidden = false; $('#msg').textContent = t || ''; $('#clave').value = ''; $('#clave').focus(); }
+  function mostrarEntrar(t) {
+    $('#panel').hidden = true; $('#entrar').hidden = false; $('#msg').textContent = t || '';
+    if (modo === 'panel') { $('#irpanel').hidden = false; if (!t) $('#msg').textContent = 'Entrá desde el panel para editar las reseñas.'; }
+  }
 
   function abrir(r) {
     editando = r; fotoNueva = null; quitarFoto = false;
@@ -151,8 +160,10 @@
     });
   }
 
-  $('#entrar').addEventListener('submit', (e) => { e.preventDefault(); setClave($('#clave').value); cargar(); });
-  $('#salir').addEventListener('click', () => { setClave(''); mostrarEntrar(''); });
+  $('#salir').addEventListener('click', () => {
+    setClave(''); try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+    mostrarEntrar('');
+  });
   $('#nueva').addEventListener('click', () => abrir(null));
   $('#cancelar').addEventListener('click', () => { $('#ficha').hidden = true; });
   $('#ficha').nombre.addEventListener('input', () => { if (!fotoNueva && !(editando && editando.foto && !quitarFoto)) prevFoto(''); });
@@ -184,7 +195,23 @@
     }
   });
 
-  clave() ? cargar() : mostrarEntrar('');
+  // Arranque: qué modo usa esta web y, con Google, el botón "Ingresar con Google".
+  fetch(API + '?config').then((r) => r.json()).then((cfg) => {
+    modo = cfg.modo || 'google';
+    if (modo === 'google') {
+      if (!cfg.googleClientId) { mostrarEntrar('Falta configurar el acceso con Google (GOOGLE_CLIENT_ID en resenas/acceso.php).'); return; }
+      const s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+      s.onload = () => {
+        google.accounts.id.initialize({ client_id: cfg.googleClientId, auto_select: true,
+          callback: (res) => { setClave(res.credential); cargar(); } });
+        google.accounts.id.renderButton($('#gboton'), { theme: 'filled_black', size: 'large', shape: 'pill', text: 'signin_with', locale: 'es' });
+        if (!clave()) google.accounts.id.prompt();
+      };
+      document.head.appendChild(s);
+    }
+    clave() ? cargar() : mostrarEntrar('');
+  }).catch(() => mostrarEntrar('No se pudo cargar el panel.'));
 })();
 </script>
 </body>

@@ -1,5 +1,5 @@
 # Los datos y la configuración no se sirven nunca; las fotos sí, pero sólo como imágenes.
-<FilesMatch "^(config\.php)$">
+<FilesMatch "^(acceso\.php)$">
   Require all denied
 </FilesMatch>
 RedirectMatch 404 ^/resenas/data(/.*)?$
@@ -8,3 +8,6 @@ RedirectMatch 404 ^/resenas/data(/.*)?$
     Header set X-Content-Type-Options "nosniff"
   </FilesMatch>
 </IfModule>
+
+# Que el token de la sesión llegue a PHP (algunos servidores sacan el encabezado Authorization).
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1

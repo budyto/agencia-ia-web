@@ -2,12 +2,16 @@
 // ============================================================
 //  RESEÑAS EDITABLES (29/10/2026, Budy: "reseñas editables, con foto de perfil")
 //  GET  /resenas/api.php            → las publicadas, para la web (público)
-//  POST /resenas/api.php            → el panel /admin, con la clave en X-Clave
+//  GET  /resenas/api.php?config     → el ID de cliente de Google, para el botón del panel
+//  POST /resenas/api.php            → el panel /admin, con la sesión de Google en Authorization
 //       {accion:"listar"}                           todas, incluidas las ocultas
 //       {accion:"guardar", resena:{...}, foto?}     alta o edición (foto en data:URL)
 //       {accion:"borrar", id}
 //  Los datos van en data/resenas.json y las fotos en fotos/: los dos fuera de git
-//  (.gitignore), así un deploy no los pisa. La clave es la de config.php (hash).
+//  (.gitignore), así un deploy no los pisa.
+//  ACCESO (29/10/2026, Budy: "el más simple y seguro, no con contraseñas en un txt" y "no tiene
+//  sentido iniciar dos veces"): cada web lo resuelve en acceso.php. En la agencia se entra con
+//  Google; en miscreditos.app, con la misma sesión del panel /admin.
 // ============================================================
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -16,7 +20,7 @@ header('X-Content-Type-Options: nosniff');
 $DIR = __DIR__ . '/data';
 $ARCH = $DIR . '/resenas.json';
 $FOTOS = __DIR__ . '/fotos';
-require __DIR__ . '/config.php';   // define RESENAS_CLAVE_HASH
+require __DIR__ . '/acceso.php';   // cada web dice cómo se entra: quienEntra() y ACCESO_CONFIG
 
 function leer($arch) {
   if (!is_file($arch)) return [];
@@ -47,20 +51,23 @@ if (!is_dir($FOTOS)) @mkdir($FOTOS, 0755, true);
 $lista = leer($ARCH);
 usort($lista, fn($a, $b) => ($a['orden'] <=> $b['orden']) ?: strcmp($b['creada'], $a['creada']));
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['config'])) salir(200, ACCESO_CONFIG);
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
   salir(200, ['resenas' => array_map('publica', array_values(array_filter($lista, fn($r) => !empty($r['publicada']))))]);
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') salir(405, ['error' => 'Método no permitido']);
 
-// Freno simple contra adivinar la clave: 10 intentos fallidos por IP cada 15 minutos.
+// Freno simple: 10 intentos fallidos por IP cada 15 minutos.
 $ip = preg_replace('/[^0-9a-f:.]/i', '', $_SERVER['REMOTE_ADDR'] ?? '');
 $frenoArch = $DIR . '/freno-' . md5($ip) . '.json';
 $freno = leer($frenoArch);
 $freno = array_values(array_filter($freno, fn($t) => $t > time() - 900));
 if (count($freno) >= 10) salir(429, ['error' => 'Demasiados intentos. Probá en 15 minutos.']);
-if (!password_verify((string)($_SERVER['HTTP_X_CLAVE'] ?? ''), RESENAS_CLAVE_HASH)) {
+$token = preg_replace('/^Bearer\s+/i', '', (string)($_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? ''));
+$email = quienEntra($token, $DIR);
+if (!$email) {
   $freno[] = time(); file_put_contents($frenoArch, json_encode($freno));
-  salir(401, ['error' => 'Clave incorrecta']);
+  salir(401, ['error' => 'Tu sesión venció. Volvé a ingresar.']);
 }
 
 $b = json_decode(file_get_contents('php://input'), true) ?: [];

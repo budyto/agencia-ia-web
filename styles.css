@@ -566,3 +566,6 @@ footer { border-top: 1px solid var(--line); padding: 56px 0 40px; }
 .paq li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); }
 .paq .btn { justify-content: center; }
 .paq-nota { color: var(--ink-2); opacity: .75; font-size: 14px; margin-top: 22px; }
+.paq-anual { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 18px; padding: 22px 26px; border: 1px solid var(--accent); border-radius: 18px; background: rgba(212,175,55,.07); }
+.paq-anual h3 { margin: 6px 0; font-size: 22px; }
+.paq-anual p { margin: 0; color: var(--ink-2); max-width: 680px; }

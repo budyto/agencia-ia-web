@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>WhatsApp · MyM Soluciones</title>
+<link rel="icon" href="../img/favicon.png" type="image/png">
+<!-- EL PANEL DEL WHATSAPP DE MyM SOLUCIONES (30/10/2026): las charlas del 11 7059-1714, que atiende
+     el robot de ventas en el server de MyM (ventas-sol.js de AppMyM). Se leen y se contestan con la
+     clave VENTAS_SOL_PANEL_CLAVE (una variable del servicio de MyM). La clave queda sólo en esta
+     pestaña (sessionStorage). Mientras el número no esté registrado en Meta, acá no aparece nada. -->
+<style>
+  :root { --canvas:#050506; --s1:#0e0f10; --s2:#16171a; --line:#25272c; --line-2:#34343a; --ink:#f4f5f6; --ink-3:#a6abb4; --accent:#d4af37; --ok:#3ccf7a; --err:#ff8a7a; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 18px; margin: 0; }
+  a { color: var(--accent); }
+  input, textarea, button { font: inherit; }
+  input, textarea { background: var(--s1); border: 1px solid var(--line-2); color: var(--ink); border-radius: 10px; padding: 10px 12px; width: 100%; }
+  .btn { background: var(--accent); color: #120d02; border: 0; border-radius: 999px; padding: 9px 16px; font-weight: 600; cursor: pointer; }
+  .btn.gris { background: var(--s2); color: var(--ink); border: 1px solid var(--line-2); }
+  .btn:disabled { opacity: .5; }
+  .entrar { max-width: 360px; margin: 12vh auto; display: grid; gap: 12px; }
+  .grilla { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+  @media (max-width: 760px) { .grilla { grid-template-columns: 1fr; } .grilla.chat-abierto #lado { display: none; } .grilla:not(.chat-abierto) #chat { display: none; } }
+  #walista { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+  #walista li { background: var(--s1); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+  #walista li.on { border-color: var(--accent); }
+  #walista b { display: block; }
+  #walista small { color: var(--ink-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { font-size: 11px; border-radius: 999px; padding: 1px 8px; margin-left: 6px; background: var(--accent); color: #120d02; }
+  .pill.der { background: #3a2a10; color: var(--accent); }
+  #chat { background: var(--s1); border: 1px solid var(--line); border-radius: 12px; padding: 14px; min-height: 60vh; display: flex; flex-direction: column; gap: 10px; }
+  .cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+  .msgs { flex: 1; overflow-y: auto; max-height: 58vh; display: flex; flex-direction: column; gap: 6px; }
+  .m { max-width: 82%; padding: 8px 11px; border-radius: 12px; white-space: pre-wrap; background: var(--s2); }
+  .m.cliente { align-self: flex-start; }
+  .m.robot, .m.humano { align-self: flex-end; background: #2a2412; }
+  .m.humano { background: #123222; }
+  .m small { display: block; color: var(--ink-3); font-size: 11px; margin-top: 3px; }
+  .escribir { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+  .escribir textarea { min-height: 54px; resize: vertical; }
+  .aviso, #wamsg { color: var(--ink-3); font-size: 14px; }
+  .err { color: var(--err); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="entrar" id="entrar" hidden>
+    <h1>WhatsApp · MyM Soluciones</h1>
+    <input type="password" id="clave" placeholder="Clave del panel" autocomplete="current-password" required>
+    <button class="btn" type="submit">Entrar</button>
+    <p class="aviso" id="entrarmsg"></p>
+  </form>
+  <div id="panel" hidden>
+    <header><h1>WhatsApp · 11 7059-1714</h1><div><button class="btn gris" id="warecargar" type="button">Actualizar</button> <button class="btn gris" id="salir" type="button">Salir</button></div></header>
+    <p id="wamsg"></p>
+    <div class="grilla" id="grilla">
+      <div id="lado"><input type="search" id="wabuscar" placeholder="Buscar nombre, negocio o teléfono"><ul id="walista"></ul></div>
+      <div id="chat"><p class="aviso">Elegí una charla.</p></div>
+    </div>
+  </div>
+</div>
+<script src="../config.js"></script>
+<script>
+(function () {
+  const $ = (s) => document.querySelector(s);
+  const API = String((window.SITE || {}).ventasApi || 'https://mym-creditos-81440681742.southamerica-east1.run.app').replace(/\/+$/, '');
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fecha = (ts) => { const d = new Date(ts); return isNaN(d) ? '' : d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); };
+  const DE = { cliente: '', robot: 'Robot', humano: 'Equipo' };
+  const MOTIVO = { diagnostico: 'Diagnóstico', precio: 'Precio', contratar: 'Contratar', persona: 'Persona', consulta: 'Consulta' };
+  let clave = '', charlas = [], abierta = null;
+  try { clave = sessionStorage.getItem('sol_clave') || ''; } catch (e) {}
+
+  async function pedir(ruta, op) {
+    const r = await fetch(API + ruta, { ...(op || {}), headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + clave } });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) { salir('La clave no entra.'); throw new Error('clave incorrecta'); }
+    if (!r.ok) throw new Error(j.error || 'HTTP ' + r.status);
+    return j;
+  }
+  function salir(msg) { clave = ''; try { sessionStorage.removeItem('sol_clave'); } catch (e) {} $('#panel').hidden = true; $('#entrar').hidden = false; $('#entrarmsg').textContent = msg || ''; }
+
+  function pintarCharlas() {
+    const q = $('#wabuscar').value.trim().toLowerCase();
+    const lista = charlas.filter((c) => !q || [c.datos.nombre, c.datos.negocio, c.nombre_perfil, c.telefono].join(' ').toLowerCase().includes(q));
+    $('#walista').innerHTML = lista.length ? lista.map((c) => '<li data-tel="' + esc(c.telefono) + '" class="' + (abierta && abierta.telefono === c.telefono ? 'on' : '') + '">'
+      + '<b>' + esc(c.datos.nombre || c.nombre_perfil || '+' + c.telefono) + (c.sin_leer ? '<span class="pill">' + c.sin_leer + '</span>' : '')
+      + (c.derivada ? '<span class="pill der">' + esc(MOTIVO[c.derivada.motivo] || 'Derivada') + '</span>' : '') + '</b>'
+      + '<small>' + esc(c.datos.negocio || '') + '</small><small>' + esc(c.ultimo.texto) + '</small></li>').join('')
+      : '<li><small>Todavía no hay charlas.</small></li>';
+  }
+  function pintarChat() {
+    $('#grilla').classList.toggle('chat-abierto', !!abierta);
+    if (!abierta) { $('#chat').innerHTML = '<p class="aviso">Elegí una charla.</p>'; return; }
+    const c = abierta, d = c.datos || {};
+    $('#chat').innerHTML = '<div class="cab"><div><button class="btn gris" id="volver" type="button">←</button> <b>' + esc(d.nombre || c.nombre_perfil || '+' + c.telefono) + '</b> · +' + esc(c.telefono)
+      + (d.negocio ? '<br><small>' + esc(d.negocio) + (d.automatizar ? ' · quiere automatizar: ' + esc(d.automatizar) : '') + '</small>' : '') + '</div>'
+      + '<button class="btn gris" id="robot" type="button">' + (c.robot_activo ? 'Atenderla yo' : 'Devolver al robot') + '</button></div>'
+      + '<div class="msgs" id="msgs">' + (c.mensajes || []).map((m) => '<div class="m ' + esc(m.de) + '">' + esc(m.texto) + '<small>' + (DE[m.de] ? DE[m.de] + ' · ' : '') + fecha(m.ts)
+      + (m.error ? ' · <span class="err">no salió: ' + esc(m.error) + '</span>' : '') + '</small></div>').join('') + '</div>'
+      + (c.ventana_abierta ? '<form class="escribir" id="escribir"><textarea id="texto" placeholder="Escribile desde el 11 7059-1714…" required></textarea><button class="btn" type="submit">Enviar</button></form>'
+        : '<p class="aviso">Pasaron más de 24 h desde su último mensaje: WhatsApp no deja escribirle hasta que vuelva a escribir.</p>');
+    const msgs = $('#msgs'); msgs.scrollTop = msgs.scrollHeight;
+  }
+  async function cargar() {
+    try { charlas = (await pedir('/api/ventas-sol/charlas')).charlas || []; $('#wamsg').textContent = ''; pintarCharlas(); }
+    catch (e) { $('#wamsg').textContent = 'No se pudieron leer las charlas: ' + e.message; }
+  }
+  async function abrir(t) {
+    try { abierta = (await pedir('/api/ventas-sol/charlas/' + encodeURIComponent(t))).charla; const c = charlas.find((x) => x.telefono === t); if (c) c.sin_leer = 0; pintarCharlas(); pintarChat(); }
+    catch (e) { $('#wamsg').textContent = 'No se pudo abrir la charla: ' + e.message; }
+  }
+  function entrar() { $('#entrar').hidden = true; $('#panel').hidden = false; cargar(); }
+
+  $('#entrar').addEventListener('submit', (e) => { e.preventDefault(); clave = $('#clave').value; try { sessionStorage.setItem('sol_clave', clave); } catch (er) {} entrar(); });
+  $('#salir').addEventListener('click', () => salir(''));
+  $('#wabuscar').addEventListener('input', pintarCharlas);
+  $('#warecargar').addEventListener('click', () => { cargar(); if (abierta) abrir(abierta.telefono); });
+  $('#walista').addEventListener('click', (e) => { const li = e.target.closest('li[data-tel]'); if (li) abrir(li.dataset.tel); });
+  $('#chat').addEventListener('click', async (e) => {
+    if (e.target.id === 'volver') { abierta = null; pintarCharlas(); pintarChat(); return; }
+    if (e.target.id !== 'robot' || !abierta) return;
+    e.target.disabled = true;
+    try { await pedir('/api/ventas-sol/charlas/' + encodeURIComponent(abierta.telefono) + '/robot', { method: 'POST', body: JSON.stringify({ activo: !abierta.robot_activo }) }); await abrir(abierta.telefono); cargar(); }
+    catch (err) { e.target.disabled = false; $('#wamsg').textContent = 'No se pudo cambiar: ' + err.message; }
+  });
+  $('#chat').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const texto = $('#texto').value.trim(), boton = e.target.querySelector('button');
+    if (!texto || !abierta) return;
+    boton.disabled = true;
+    try { await pedir('/api/ventas-sol/charlas/' + encodeURIComponent(abierta.telefono) + '/responder', { method: 'POST', body: JSON.stringify({ texto }) }); await abrir(abierta.telefono); cargar(); }
+    catch (err) { boton.disabled = false; $('#wamsg').textContent = 'No se pudo mandar: ' + err.message; }
+  });
+  // Cada 30 s mientras se ve (cada vuelta son ~50 lecturas de Firestore en MyM).
+  setInterval(() => {
+    if (document.hidden || $('#panel').hidden) return;
+    if (document.activeElement && document.activeElement.id === 'texto') return;
+    cargar(); if (abierta) abrir(abierta.telefono);
+  }, 30000);
+  clave ? entrar() : salir('');
+})();
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>WhatsApp · MyM Soluciones</title>
 <link rel="icon" href="../img/favicon.png" type="image/png">
-<!-- EL PANEL DEL WHATSAPP DE MyM SOLUCIONES (30/10/2026): las charlas del 11 7059-1714, que atiende
+<!-- EL PANEL DEL WHATSAPP DE MyM SOLUCIONES (30/10/2026): las charlas del 11 3366-2080, que atiende
      el robot de ventas en el server de MyM (ventas-sol.js de AppMyM). Se leen y se contestan con la
      clave VENTAS_SOL_PANEL_CLAVE (una variable del servicio de MyM). La clave queda sólo en esta
      pestaña (sessionStorage). Mientras el número no esté registrado en Meta, acá no aparece nada. -->
@@ -57,7 +57,7 @@
     <p class="aviso" id="entrarmsg"></p>
   </form>
   <div id="panel" hidden>
-    <header><h1>WhatsApp · 11 7059-1714</h1><div><button class="btn gris" id="warecargar" type="button">Actualizar</button> <button class="btn gris" id="salir" type="button">Salir</button></div></header>
+    <header><h1>WhatsApp · 11 3366-2080</h1><div><button class="btn gris" id="warecargar" type="button">Actualizar</button> <button class="btn gris" id="salir" type="button">Salir</button></div></header>
     <p id="wamsg"></p>
     <div class="grilla" id="grilla">
       <div id="lado"><input type="search" id="wabuscar" placeholder="Buscar nombre, negocio o teléfono"><ul id="walista"></ul></div>
@@ -104,7 +104,7 @@
       + '<button class="btn gris" id="robot" type="button">' + (c.robot_activo ? 'Atenderla yo' : 'Devolver al robot') + '</button></div>'
       + '<div class="msgs" id="msgs">' + (c.mensajes || []).map((m) => '<div class="m ' + esc(m.de) + '">' + esc(m.texto) + '<small>' + (DE[m.de] ? DE[m.de] + ' · ' : '') + fecha(m.ts)
       + (m.error ? ' · <span class="err">no salió: ' + esc(m.error) + '</span>' : '') + '</small></div>').join('') + '</div>'
-      + (c.ventana_abierta ? '<form class="escribir" id="escribir"><textarea id="texto" placeholder="Escribile desde el 11 7059-1714…" required></textarea><button class="btn" type="submit">Enviar</button></form>'
+      + (c.ventana_abierta ? '<form class="escribir" id="escribir"><textarea id="texto" placeholder="Escribile desde el 11 3366-2080…" required></textarea><button class="btn" type="submit">Enviar</button></form>'
         : '<p class="aviso">Pasaron más de 24 h desde su último mensaje: WhatsApp no deja escribirle hasta que vuelva a escribir.</p>');
     const msgs = $('#msgs'); msgs.scrollTop = msgs.scrollHeight;
   }

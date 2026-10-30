@@ -19,8 +19,12 @@
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 18px 16px 50px; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 14px 16px; }
+  /* Todo entra en el alto de la pantalla: sólo scrollean adentro la lista, los mensajes y la ficha, sin barra visible. */
+  #panel:not([hidden]) { height: calc(100dvh - 28px); display: flex; flex-direction: column; }
+  .scroll { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
   header h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
   header h1 span { color: var(--accent); }
   a { color: var(--accent); }
@@ -47,47 +51,48 @@
   .tarj small { color: var(--ink-3); font-size: 12px; }
   .tarj.alerta { border-color: var(--accent); background: linear-gradient(180deg, #2a2208, var(--s1)); }
   .tarj.alerta b { color: var(--accent-2); }
-  .embudo { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .embudo { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
   .embudo button { flex: 1 1 110px; background: var(--s1); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); padding: 7px 10px; cursor: pointer; text-align: left; font-size: 13px; }
   .embudo button b { float: right; color: var(--accent); }
   .embudo button.on, .filtros button.on { border-color: var(--accent); background: #241e0a; }
   @media (max-width: 640px) { .tarjetas { grid-template-columns: repeat(2, 1fr); } }
 
   /* Grilla */
-  .grilla { display: grid; grid-template-columns: 330px 1fr 290px; gap: 12px; align-items: start; }
-  @media (max-width: 1100px) { .grilla { grid-template-columns: 300px 1fr; } #ficha { grid-column: 2; } }
+  .grilla { flex: 1; min-height: 0; display: grid; grid-template-columns: 330px minmax(0, 1fr) 290px; gap: 12px; }
+  .grilla > * { min-height: 0; min-width: 0; }
+  #lado { display: flex; flex-direction: column; }
+  @media (max-width: 1100px) { .grilla { grid-template-columns: 300px minmax(0, 1fr); } .grilla:not(.ver-ficha) #ficha, .grilla.ver-ficha #chat { display: none; } .solo-med { display: inline-block !important; } }
   @media (max-width: 760px) {
-    .grilla { grid-template-columns: 1fr; }
-    #ficha { grid-column: auto; }
+    .grilla { grid-template-columns: minmax(0, 1fr); }
+    .tarjetas, .embudo { display: none; }
     .grilla.abierta #lado { display: none; }
     .grilla:not(.abierta) #chat, .grilla:not(.abierta) #ficha { display: none; }
-    .grilla.abierta.ver-ficha #chat, .grilla.abierta:not(.ver-ficha) #ficha { display: none; }
     .solo-cel { display: inline-block !important; }
   }
-  .solo-cel { display: none !important; }
+  .solo-cel, .solo-med { display: none !important; }
   .filtros { display: flex; gap: 5px; flex-wrap: wrap; margin: 8px 0; }
   .filtros button { background: var(--s1); border: 1px solid var(--line); color: var(--ink); border-radius: 999px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
-  #walista { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 70vh; overflow-y: auto; }
-  #walista li { background: var(--s1); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; cursor: pointer; }
+  #walista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
+  #walista li { min-width: 0; overflow: hidden; flex-shrink: 0; background: var(--s1); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; cursor: pointer; }
   #walista li:hover { border-color: var(--line-2); }
   #walista li.on { border-color: var(--accent); }
   #walista li.resuelta { opacity: .6; }
   .fila { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-  .fila b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fila b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #walista small { color: var(--ink-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
   .chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
-  .chip { font-size: 11px; border-radius: 999px; padding: 1px 8px; background: var(--s2); color: var(--ink-3); border: 1px solid var(--line); }
+  .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; border-radius: 999px; padding: 1px 8px; background: var(--s2); color: var(--ink-3); border: 1px solid var(--line); }
   .chip.oro { background: var(--accent); color: #140f00; border-color: var(--accent); font-weight: 600; }
   .chip.der { background: #2e250a; color: var(--accent-2); border-color: #5a4710; }
   .chip.rojo { background: #3a1410; color: var(--err); border-color: #6a2820; }
   .chip.verde { color: var(--ok); }
 
-  #chat, #ficha { background: var(--s1); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-  #chat { min-height: 66vh; display: flex; flex-direction: column; gap: 10px; }
+  #chat, #ficha { overflow-y: auto; background: var(--s1); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  #chat { display: flex; flex-direction: column; gap: 10px; }
   .cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
   .cab small { color: var(--ink-3); }
   .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
-  .msgs { flex: 1; overflow-y: auto; max-height: 52vh; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+  .msgs { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
   .m { max-width: 82%; padding: 8px 11px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; background: var(--s2); }
   .m.cliente { align-self: flex-start; }
   .m.robot, .m.humano { align-self: flex-end; background: #2a2208; }
@@ -130,10 +135,10 @@
       <div id="lado">
         <input type="search" id="wabuscar" placeholder="Buscar nombre, negocio o teléfono">
         <div class="filtros" id="filtros"></div>
-        <ul id="walista"></ul>
+        <ul id="walista" class="scroll"></ul>
       </div>
       <div id="chat"><p class="aviso">Elegí una conversación.</p></div>
-      <aside id="ficha"><p class="aviso">La ficha del contacto aparece al abrir una conversación.</p></aside>
+      <aside id="ficha" class="scroll"><p class="aviso">La ficha del contacto aparece al abrir una conversación.</p></aside>
     </div>
   </div>
 </div>
@@ -150,9 +155,10 @@
   const CAMPOS = { nombre: 'Nombre', negocio: 'Negocio', rubro: 'Rubro', automatizar: 'Qué quiere automatizar', email: 'Email', ciudad: 'Ciudad' };
   // Los nombres de etapas y motivos los manda el server; éstos son sólo por si todavía no llegaron.
   let ETAPAS = { nuevo: 'Nuevo', diagnostico: 'Diagnóstico', propuesta: 'Propuesta', cliente: 'Cliente', perdido: 'Perdido' };
-  let MOTIVOS = { diagnostico: 'Diagnóstico', precio: 'Precio', contratar: 'Contratar', persona: 'Persona', consulta: 'Consulta' };
+  // Los textos de los motivos son de la pantalla (Budy: "no se entendía qué quería decir cada uno").
+  const MOTIVOS = { diagnostico: 'Quiere el diagnóstico', precio: 'Pide precio especial', contratar: 'Quiere contratar', persona: 'Pidió hablar con una persona', consulta: 'Consulta sin respuesta' };
   let campos = Object.keys(CAMPOS), respuestas = [];
-  let clave = '', charlas = [], abierta = null, filtro = 'todas', etapa = '', vistos = null, nuevos = 0;
+  let clave = '', charlas = [], abierta = null, filtro = 'todas', etapa = '', vistos = null, nuevos = 0, fichaSucia = '';
   try { clave = sessionStorage.getItem('sol_clave') || ''; } catch (e) {}
 
   async function pedir(ruta, op) {
@@ -175,7 +181,7 @@
   async function cargarResumen() {
     try {
       const j = await pedir('/api/ventas-sol/resumen');
-      if (j.etapas) ETAPAS = j.etapas; if (j.motivos) MOTIVOS = j.motivos;
+      if (j.etapas) ETAPAS = j.etapas;
       const r = j.resumen || {};
       $('#tarjetas').innerHTML = [['hoy', r.charlas_hoy, 'Conversaciones hoy'], ['semana', r.charlas_semana, 'Esta semana'], ['nuevas', r.nuevas_semana, 'Contactos nuevos (7 días)'], ['esperando', r.esperando, 'Esperando respuesta']]
         .map(([k, n, t]) => '<button type="button" class="tarj' + (k === 'esperando' && n ? ' alerta' : '') + '" data-f="' + (k === 'esperando' ? 'esperando' : 'todas') + '"><b>' + (n || 0) + '</b><small>' + t + '</small></button>').join('');
@@ -234,11 +240,11 @@
     const c = abierta, d = c.datos || {};
     const borrador = $('#texto') ? $('#texto').value : '';
     $('#chat').innerHTML = '<div class="cab"><div><button class="btn gris chico solo-cel" id="volver" type="button">←</button> <b>' + esc(nombre(c)) + '</b> <small>+' + esc(c.telefono) + '</small>'
-      + (c.derivada ? '<br><small>Derivada por ' + esc(MOTIVOS[c.derivada.motivo] || c.derivada.motivo) + ' · ' + fecha(c.derivada.ts) + '</small>' : '') + '</div>'
-      + '<div class="acciones"><button class="btn gris chico solo-cel" id="verficha" type="button">Ficha</button>'
-      + '<button class="btn gris chico" id="robot" type="button">' + (c.robot_activo ? 'Atenderla yo' : 'Devolver al robot') + '</button>'
-      + '<button class="btn chico" id="resolver" type="button">' + (c.resuelta ? 'Reabrir' : 'Marcar resuelta') + '</button></div></div>'
-      + '<div class="msgs" id="msgs">' + (c.mensajes || []).map((m) => '<div class="m ' + esc(m.de) + '">' + esc(m.texto) + '<small>' + (DE[m.de] ? DE[m.de] + ' · ' : '') + fecha(m.ts)
+      + (c.derivada ? '<br><small>El robot la derivó: ' + esc((MOTIVOS[c.derivada.motivo] || c.derivada.motivo).toLowerCase()) + ' · ' + fecha(c.derivada.ts) + '</small>' : '') + '</div>'
+      + '<div class="acciones"><button class="btn gris chico solo-cel solo-med" id="verficha" type="button">Ficha</button>'
+      + (c.robot_activo ? '<button class="btn gris chico" id="robot" type="button" title="El robot deja de contestar en esta charla">Tomar la charla</button>' : '<button class="btn gris chico" id="robot" type="button" title="El robot vuelve a contestar en esta charla">Devolver al robot</button>')
+      + (c.resuelta ? '<button class="btn chico" id="resolver" type="button" title="Vuelve a Esperando">Reabrir' : '<button class="btn chico" id="resolver" type="button" title="Sale de Esperando hasta que vuelva a escribir">Ya la atendí') + '</button></div></div>'
+      + '<div class="msgs scroll" id="msgs">' + (c.mensajes || []).map((m) => '<div class="m ' + esc(m.de) + '">' + esc(m.texto) + '<small>' + (DE[m.de] ? DE[m.de] + ' · ' : '') + fecha(m.ts)
       + (m.error ? ' · <span class="err">no salió: ' + esc(m.error) + '</span>' : '') + '</small></div>').join('') + '</div>'
       + (c.ultimo_error ? '<p class="aviso err">Último error de envío: ' + esc(c.ultimo_error) + '</p>' : '')
       + (c.ventana_abierta
@@ -248,7 +254,10 @@
     if (borrador && $('#texto')) $('#texto').value = borrador;
     const msgs = $('#msgs'); msgs.scrollTop = msgs.scrollHeight;
 
-    $('#ficha').innerHTML = '<button class="btn gris chico solo-cel" id="verchat" type="button" style="margin-bottom:10px">← Conversación</button><h2>Ficha</h2><form id="fichaform">'
+    // Con cambios sin guardar no se repinta: el refresco no pisa lo que se está escribiendo.
+    if (fichaSucia === c.telefono) { $('#fichamsg').textContent = 'Cambios sin guardar.'; return; }
+    fichaSucia = '';
+    $('#ficha').innerHTML = '<button class="btn gris chico solo-cel solo-med" id="verchat" type="button" style="margin-bottom:10px">← Conversación</button><h2>Ficha</h2><form id="fichaform">'
       + '<label>Etapa<select name="etapa">' + Object.keys(ETAPAS).map((k) => '<option value="' + esc(k) + '"' + ((c.etapa || 'nuevo') === k ? ' selected' : '') + '>' + esc(ETAPAS[k]) + '</option>').join('') + '</select></label>'
       + campos.map((k) => '<label>' + esc(CAMPOS[k] || k) + '<input name="d_' + esc(k) + '" value="' + esc(d[k] || '') + '"></label>').join('')
       + '<label>Notas internas (el cliente no las ve)<textarea name="notas">' + esc(c.notas || '') + '</textarea></label>'
@@ -335,6 +344,7 @@
       else msg('No se pudo mandar: ' + err.message);
     }
   });
+  $('#ficha').addEventListener('input', () => { if (abierta) { fichaSucia = abierta.telefono; $('#fichamsg').textContent = 'Cambios sin guardar.'; } });
   $('#ficha').addEventListener('click', (e) => { if (e.target.id === 'verchat') $('#grilla').classList.remove('ver-ficha'); });
   $('#ficha').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -344,19 +354,19 @@
     if (Object.keys(datos).length) cuerpo.datos = datos;
     if (f.etapa.value !== (abierta.etapa || 'nuevo')) cuerpo.etapa = f.etapa.value;
     if (f.notas.value.trim() !== (abierta.notas || '')) cuerpo.notas = f.notas.value.trim();
-    if (!Object.keys(cuerpo).length) { $('#fichamsg').textContent = 'No hay cambios.'; return; }
+    if (!Object.keys(cuerpo).length) { fichaSucia = ''; $('#fichamsg').textContent = 'No hay cambios.'; return; }
     const b = f.querySelector('button'); b.disabled = true;
-    try { refrescarCharla((await post(ruta(abierta.telefono, '/ficha'), cuerpo)).charla); $('#fichamsg').textContent = 'Guardado.'; if (cuerpo.etapa) cargarResumen(); }
+    try { const ch = (await post(ruta(abierta.telefono, '/ficha'), cuerpo)).charla; fichaSucia = ''; refrescarCharla(ch); $('#fichamsg').textContent = 'Guardado.'; if (cuerpo.etapa) cargarResumen(); }
     catch (err) { b.disabled = false; $('#fichamsg').innerHTML = '<span class="err">No se pudo guardar: ' + esc(err.message) + '</span>'; }
   });
 
   // Cada 20 s y sólo con la pestaña visible: cada vuelta son lecturas pagas de Firestore en MyM.
-  // No se refresca la charla si se está escribiendo o editando la ficha, para no pisar nada.
+  // Mientras se escribe un mensaje no se refresca la charla; la ficha se cuida sola (fichaSucia).
   function tick() {
     if (document.hidden || $('#panel').hidden) return;
     cargar(); cargarResumen();
     const foco = document.activeElement;
-    if (abierta && !(foco && (foco.id === 'texto' || foco.closest('#ficha')))) abrir(abierta.telefono);
+    if (abierta && !(foco && foco.id === 'texto')) abrir(abierta.telefono);
   }
   setInterval(tick, 20000);
   clave ? entrar() : salir('');

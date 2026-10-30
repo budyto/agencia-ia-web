@@ -10,136 +10,170 @@
      el robot de ventas en el server de MyM (ventas-sol.js de AppMyM). Se leen y se contestan con la
      clave VENTAS_SOL_PANEL_CLAVE (una variable del servicio de MyM). La clave queda sólo en esta
      pestaña (sessionStorage).
-     31/10/2026 (Budy: "lo más funcional posible"): resumen y embudo arriba, filtros, ficha editable
-     con etapa y notas, atender/devolver, resolver, respuestas rápidas que vienen del server (los
-     textos y precios no se escriben acá), refresco cada 20 s sólo con la pestaña visible y aviso
-     del navegador cuando entra un mensaje o una derivación. -->
+     31/10/2026 (Budy: "así se tienen que ver las dos"): copia la pantalla de WhatsApp del Boti de
+     AppMyM (public/js/secciones/whatsapp.js): una barra arriba, lista a la izquierda con avatar de
+     iniciales y la charla ocupando el resto, con la ficha como panel que se despliega adentro.
+     Todo entra en 100dvh: sin scroll de página ni barras visibles. Los textos y precios de las
+     respuestas rápidas vienen del server; acá no se escriben. -->
 <style>
-  :root { --canvas:#0b0b0b; --s1:#141414; --s2:#1c1c1c; --line:#2a2a2a; --line-2:#3a3a3a; --ink:#f4f4f2; --ink-3:#a3a39c; --accent:#c9a227; --accent-2:#e6c766; --ok:#3ccf7a; --err:#ff7b6b; }
+  :root { --dorado:#c9a227; --dorado-2:#e6c766; --card:#141414; --borde:#262626; --ink:#ededed; --gris:#8d8d8d; --rojo:#c62828; --verde:#25d366; }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
-  body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width: 1280px; margin: 0 auto; padding: 14px 16px; }
-  /* Todo entra en el alto de la pantalla: sólo scrollean adentro la lista, los mensajes y la ficha, sin barra visible. */
-  #panel:not([hidden]) { height: calc(100dvh - 28px); display: flex; flex-direction: column; }
+  html, body { height: 100%; }
+  body { margin: 0; color: var(--ink); font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden;
+    background: linear-gradient(rgba(12,12,14,.74), rgba(12,12,14,.83)), url('../img/fondo-panel.webp') center top / cover no-repeat fixed, #0c0c0e; }
+  input, textarea, button, select { font: inherit; }
   .scroll { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
   .scroll::-webkit-scrollbar { display: none; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-  header h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
-  header h1 span { color: var(--accent); }
-  a { color: var(--accent); }
-  input, textarea, button, select { font: inherit; }
-  input, textarea, select { background: var(--canvas); border: 1px solid var(--line-2); color: var(--ink); border-radius: 10px; padding: 9px 11px; width: 100%; }
-  input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-  label { font-size: 12px; color: var(--ink-3); display: grid; gap: 3px; }
-  .btn { background: var(--accent); color: #140f00; border: 0; border-radius: 999px; padding: 8px 15px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .btn:hover { background: var(--accent-2); }
-  .btn.gris { background: var(--s2); color: var(--ink); border: 1px solid var(--line-2); }
-  .btn.gris:hover { border-color: var(--accent); }
-  .btn.chico { padding: 5px 11px; font-size: 13px; }
+  .btn { background: var(--dorado); color: #141414; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 700; cursor: pointer; white-space: nowrap; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .btn:hover { background: var(--dorado-2); }
+  .btn.gris { background: #1f1f1f; color: var(--ink); border: 1px solid #3a3a3a; font-weight: 600; }
+  .btn.gris:hover { border-color: #bf9b49; }
   .btn:disabled { opacity: .5; cursor: default; }
-  .entrar { max-width: 360px; margin: 12vh auto; display: grid; gap: 12px; background: var(--s1); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
-  .entrar h1 { font-size: 19px; margin: 0; } .entrar h1 span { color: var(--accent); }
-  .aviso, #wamsg { color: var(--ink-3); font-size: 14px; margin: 0; }
-  #wamsg:empty { display: none; } #wamsg { margin-bottom: 10px; }
-  .err { color: var(--err); }
+  .err { color: #ff8a80; }
+  .muted { color: var(--gris); }
 
-  /* Resumen */
-  .tarjetas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
-  .tarj { background: var(--s1); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; cursor: pointer; text-align: left; color: var(--ink); }
-  .tarj b { display: block; font-size: 24px; line-height: 1.2; }
-  .tarj small { color: var(--ink-3); font-size: 12px; }
-  .tarj.alerta { border-color: var(--accent); background: linear-gradient(180deg, #2a2208, var(--s1)); }
-  .tarj.alerta b { color: var(--accent-2); }
-  .embudo { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-  .embudo button { flex: 1 1 110px; background: var(--s1); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); padding: 7px 10px; cursor: pointer; text-align: left; font-size: 13px; }
-  .embudo button b { float: right; color: var(--accent); }
-  .embudo button.on, .filtros button.on { border-color: var(--accent); background: #241e0a; }
-  @media (max-width: 640px) { .tarjetas { grid-template-columns: repeat(2, 1fr); } }
+  .entrar { max-width: 360px; margin: 14vh auto; display: grid; gap: 12px; background: var(--card); border: 1px solid var(--borde); border-radius: 14px; padding: 26px; }
+  .entrar h1 { font-size: 19px; margin: 0; } .entrar h1 span { color: var(--dorado); }
+  .entrar input { background: #0c0c0c; border: 1px solid #3a3a3a; color: var(--ink); border-radius: 10px; padding: 10px 12px; }
 
-  /* Grilla */
-  .grilla { flex: 1; min-height: 0; display: grid; grid-template-columns: 330px minmax(0, 1fr) 290px; gap: 12px; }
-  .grilla > * { min-height: 0; min-width: 0; }
-  #lado { display: flex; flex-direction: column; }
-  @media (max-width: 1100px) { .grilla { grid-template-columns: 300px minmax(0, 1fr); } .grilla:not(.ver-ficha) #ficha, .grilla.ver-ficha #chat { display: none; } .solo-med { display: inline-block !important; } }
+  #panel { height: 100dvh; display: flex; flex-direction: column; padding: 10px 12px; gap: 8px; }
+
+  /* Barra de arriba */
+  .wa-barra { position: relative; display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+  .wa-sems { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
+  .wa-sem { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: #c9c4b8; white-space: nowrap; }
+  .wa-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--verde); }
+  .wa-sem-al { background: rgba(198,40,40,.14); border: 1px solid #7a2a26; border-radius: 999px; padding: 4px 11px; color: #ffcdd2; cursor: pointer; min-width: 0; }
+  .wa-sem-al:hover { background: rgba(198,40,40,.26); }
+  .wa-sem-al .wa-dot { background: #ef5350; animation: waLat 1.6s ease-in-out infinite; }
+  .wa-sem-al span { overflow: hidden; text-overflow: ellipsis; }
+  @keyframes waLat { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .wa-sem-al .wa-dot { animation: none; } }
+  .grow { flex: 1; }
+  .wa-controles { display: flex; gap: 6px; align-items: center; flex: 0 0 auto; }
+  .wa-detalle { position: absolute; top: calc(100% + 6px); right: 0; z-index: 60; width: min(380px, 94vw); background: var(--card); border: 1px solid #3a3a3a; border-radius: 12px; padding: 12px; box-shadow: 0 12px 30px rgba(0,0,0,.55); }
+  .wa-detalle h3 { margin: 0 0 8px; font-size: 12px; color: var(--dorado); text-transform: uppercase; letter-spacing: .6px; }
+  .tarjetas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .tarj { background: #1b1b1b; border: 1px solid var(--borde); border-radius: 9px; padding: 7px 10px; }
+  .tarj b { display: block; font-size: 20px; color: var(--ink); }
+  .tarj small { color: var(--gris); font-size: 11.5px; }
+  .tarj.alerta b { color: #ff8a80; }
+  .embudo-f { display: flex; justify-content: space-between; padding: 5px 2px; border-top: 1px solid #222; cursor: pointer; font-size: 13px; }
+  .embudo-f:hover { color: var(--dorado-2); }
+  .embudo-f b { color: var(--dorado); }
+  #wamsg:empty { display: none; } #wamsg { margin: 0; font-size: 13px; flex: 0 0 auto; }
+  @media (max-width: 1023px) { .wa-lbl { display: none; } }
+  @media (max-width: 699px) { .wa-sems .wa-sem:not(.wa-sem-al) span { display: none; } }
+
+  /* Lista + charla */
+  #waWrap { flex: 1; min-height: 0; display: flex; gap: 12px; }
+  .wa-col-lista { flex: 0 0 auto; width: clamp(240px, 34%, 380px); display: flex; flex-direction: column; min-height: 0; }
+  .wa-buscar input { width: 100%; padding: 8px 14px; border: 1px solid #ddd; border-radius: 999px; background: #f7f7f7; color: #141414; outline: none; margin-bottom: 7px; }
+  .wa-buscar input:focus { border-color: var(--dorado); background: #fff; }
+  .wa-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+  .wa-tab { font-size: 11px; background: #1f1f1f; color: #bbb; border: 1px solid #3a3a3a; border-radius: 14px; padding: 3px 9px; cursor: pointer; white-space: nowrap; }
+  .wa-tab:hover { border-color: #bf9b49; color: #e6e6e6; }
+  .wa-tab.on { background: var(--dorado); border-color: #8a6d1f; color: #141414; font-weight: 700; }
+  .wa-tab.rojo { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  .wa-tab.naranja { background: #a85a00; border-color: #a85a00; color: #fff; }
+  .wa-tab.rojo.on, .wa-tab.naranja.on { box-shadow: 0 0 0 2px var(--dorado); }
+  #waLista { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 5px; }
+  .wa-item { display: flex; gap: 8px; border: 1px solid #232323; border-radius: 9px; padding: 7px 8px; background: var(--card); cursor: pointer; flex: 0 0 auto; min-width: 0; }
+  .wa-item:hover { border-color: #bf9b49; }
+  .wa-item.on { border-color: var(--dorado); background: #1c1a12; }
+  .wa-item.resuelta { opacity: .62; }
+  .wa-avatar { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; font-weight: 700; flex: 0 0 auto; line-height: 1; }
+  .wa-cuerpo { min-width: 0; flex: 1; }
+  .wa-l1 { display: flex; align-items: baseline; gap: 6px; }
+  .wa-nom { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+  .wa-hora { font-size: 10.5px; color: var(--verde); flex: 0 0 auto; }
+  .wa-hora.viejo { color: #6b6b6b; }
+  .wa-bajo { display: flex; gap: 7px; align-items: flex-start; }
+  .wa-txts { min-width: 0; flex: 1; }
+  .wa-ult { font-size: 11.5px; color: #8a8a8a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .wa-etapa { font-size: 11px; color: #7a756c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .wa-motivo { font-size: 11px; color: #ffcdd2; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-motivo.tarde { color: #ff8a80; font-weight: 700; }
+  .wa-ests { display: flex; flex-direction: column; gap: 2px; flex: 0 0 auto; align-items: flex-end; }
+  .wa-ests i { font-style: normal; font-size: 13px; min-width: 21px; height: 19px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
+  .wa-ests i.urg { background: rgba(198,40,40,.22); box-shadow: inset 0 0 0 1px rgba(198,40,40,.45); }
+  .wa-ests i.cont { background: var(--verde); color: #08130d; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 0 6px; }
+  .wa-ests i.new { background: var(--dorado); color: #141414; font-size: 9.5px; font-weight: 800; padding: 0 4px; }
+  .wa-ests i.leido { color: #53bdeb; font-size: 12px; }
+  .vacio-lista { color: #6b6b6b; text-align: center; padding: 20px 0; font-size: 13px; }
+
+  #waChat { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; padding: 12px 14px; gap: 8px; background: var(--card); border: 1px solid var(--borde); border-radius: 12px; }
+  #waChat > .vacio { margin: auto; text-align: center; max-width: 360px; color: #6b6b6b; }
+  .wa-cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .wa-cab .quien { flex: 1; min-width: 0; }
+  .wa-cab .quien b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-cab .quien small { color: var(--gris); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-cab .quien small.der { color: #ffcdd2; }
+  .wa-acc { display: flex; gap: 6px; flex-wrap: wrap; }
+  .wa-burbujas { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: #0b141a; border-radius: 10px; border: 1px solid #22303a; }
+  .wa-b { max-width: 78%; padding: 7px 10px; border-radius: 10px; font-size: 14px; white-space: pre-wrap; word-break: break-word; color: #e9edef; box-shadow: 0 1px 1px rgba(0,0,0,.3); }
+  .wa-b .wa-t { display: block; font-size: 11px; color: #ffffff80; margin-top: 3px; text-align: right; }
+  .wa-cliente { align-self: flex-start; background: #202c33; border-top-left-radius: 2px; }
+  .wa-robot { align-self: flex-end; background: #005c4b; border-top-right-radius: 2px; }
+  .wa-humano { align-self: flex-end; background: #4a3f14; border-top-right-radius: 2px; }
+  .cerrada { background: #2a1512; border: 1px solid #6a2820; color: #ffc2b8; border-radius: 10px; padding: 9px 12px; font-size: 13px; flex: 0 0 auto; }
+  .rapidas { display: flex; gap: 5px; flex-wrap: wrap; flex: 0 0 auto; }
+  .rapidas button { background: #1f1f1f; border: 1px dashed #4a4a4a; color: var(--ink); border-radius: 999px; padding: 2px 10px; font-size: 12px; cursor: pointer; }
+  .rapidas button:hover { border-color: var(--dorado); color: var(--dorado-2); }
+  .escribir { display: flex; gap: 8px; align-items: flex-end; flex: 0 0 auto; }
+  .escribir textarea { flex: 1; min-height: 42px; max-height: 140px; resize: none; background: #1f2c33; border: 1px solid #2a3942; color: #e9edef; border-radius: 10px; padding: 9px 12px; outline: none; }
+  .escribir textarea:focus { border-color: var(--dorado); }
+
+  /* Ficha: panel que se despliega dentro de la charla */
+  #waFicha { position: absolute; top: 0; right: 0; bottom: 0; width: min(330px, 100%); background: #171717; border-left: 1px solid #3a3a3a; padding: 14px; z-index: 5; box-shadow: -12px 0 28px rgba(0,0,0,.5); }
+  #waFicha h2 { font-size: 12px; margin: 0; color: var(--dorado); text-transform: uppercase; letter-spacing: .6px; flex: 1; }
+  #waFicha .tit { display: flex; align-items: center; margin-bottom: 10px; }
+  #waFicha form { display: grid; gap: 8px; }
+  #waFicha label { font-size: 11.5px; color: var(--gris); display: grid; gap: 3px; }
+  #waFicha input, #waFicha select, #waFicha textarea { width: 100%; background: #0c0c0c; border: 1px solid #3a3a3a; color: var(--ink); border-radius: 8px; padding: 7px 9px; }
+  #waFicha input:focus, #waFicha select:focus, #waFicha textarea:focus { outline: none; border-color: var(--dorado); }
+  #waFicha textarea { min-height: 80px; resize: vertical; }
+  .dato { font-size: 12px; color: var(--gris); margin-top: 10px; border-top: 1px solid #262626; padding-top: 8px; display: grid; gap: 2px; }
+  #fichamsg { font-size: 12px; color: var(--gris); margin: 0; }
+
+  .solo-cel { display: none !important; }
   @media (max-width: 760px) {
-    .grilla { grid-template-columns: minmax(0, 1fr); }
-    .tarjetas, .embudo { display: none; }
-    .grilla.abierta #lado { display: none; }
-    .grilla:not(.abierta) #chat, .grilla:not(.abierta) #ficha { display: none; }
-    .solo-cel { display: inline-block !important; }
+    .wa-col-lista { width: 100%; }
+    #waWrap.abierta .wa-col-lista { display: none; }
+    #waWrap:not(.abierta) #waChat { display: none; }
+    .solo-cel { display: inline-flex !important; }
   }
-  .solo-cel, .solo-med { display: none !important; }
-  .filtros { display: flex; gap: 5px; flex-wrap: wrap; margin: 8px 0; }
-  .filtros button { background: var(--s1); border: 1px solid var(--line); color: var(--ink); border-radius: 999px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
-  #walista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; flex: 1; min-height: 0; }
-  #walista li { min-width: 0; overflow: hidden; flex-shrink: 0; background: var(--s1); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; cursor: pointer; }
-  #walista li:hover { border-color: var(--line-2); }
-  #walista li.on { border-color: var(--accent); }
-  #walista li.resuelta { opacity: .6; }
-  .fila { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-  .fila b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #walista small { color: var(--ink-3); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
-  .chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
-  .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; border-radius: 999px; padding: 1px 8px; background: var(--s2); color: var(--ink-3); border: 1px solid var(--line); }
-  .chip.oro { background: var(--accent); color: #140f00; border-color: var(--accent); font-weight: 600; }
-  .chip.der { background: #2e250a; color: var(--accent-2); border-color: #5a4710; }
-  .chip.rojo { background: #3a1410; color: var(--err); border-color: #6a2820; }
-  .chip.verde { color: var(--ok); }
-
-  #chat, #ficha { overflow-y: auto; background: var(--s1); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-  #chat { display: flex; flex-direction: column; gap: 10px; }
-  .cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
-  .cab small { color: var(--ink-3); }
-  .acciones { display: flex; gap: 6px; flex-wrap: wrap; }
-  .msgs { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
-  .m { max-width: 82%; padding: 8px 11px; border-radius: 12px; white-space: pre-wrap; word-wrap: break-word; background: var(--s2); }
-  .m.cliente { align-self: flex-start; }
-  .m.robot, .m.humano { align-self: flex-end; background: #2a2208; }
-  .m.humano { background: #12301f; }
-  .m small { display: block; color: var(--ink-3); font-size: 11px; margin-top: 3px; }
-  .cerrada { background: #2a1512; border: 1px solid #6a2820; color: #ffc2b8; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
-  .rapidas { display: flex; gap: 5px; flex-wrap: wrap; }
-  .rapidas button { background: var(--canvas); border: 1px dashed var(--line-2); color: var(--ink); border-radius: 999px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
-  .rapidas button:hover { border-color: var(--accent); color: var(--accent-2); }
-  .escribir { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
-  .escribir textarea { min-height: 60px; resize: vertical; }
-  #ficha h2 { font-size: 14px; margin: 0 0 10px; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
-  #ficha form { display: grid; gap: 9px; }
-  #ficha textarea { min-height: 90px; resize: vertical; }
-  .dato { font-size: 13px; color: var(--ink-3); margin: 10px 0 0; border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 3px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <form class="entrar" id="entrar" hidden>
-    <h1>WhatsApp · <span>MyM Soluciones</span></h1>
-    <input type="password" id="clave" placeholder="Clave del panel" autocomplete="current-password" required>
-    <button class="btn" type="submit">Entrar</button>
-    <p class="aviso" id="entrarmsg"></p>
-  </form>
-  <div id="panel" hidden>
-    <header>
-      <h1>WhatsApp <span>· 11 3366-2080</span></h1>
-      <div class="acciones">
-        <button class="btn gris chico" id="avisos" type="button" hidden>Activar avisos</button>
-        <button class="btn gris chico" id="warecargar" type="button">Actualizar</button>
-        <a class="btn gris chico" href="./" style="text-decoration:none">Panel</a>
-        <button class="btn gris chico" id="salir" type="button">Salir</button>
-      </div>
-    </header>
-    <p id="wamsg"></p>
-    <div class="tarjetas" id="tarjetas"></div>
-    <div class="embudo" id="embudo"></div>
-    <div class="grilla" id="grilla">
-      <div id="lado">
-        <input type="search" id="wabuscar" placeholder="Buscar nombre, negocio o teléfono">
-        <div class="filtros" id="filtros"></div>
-        <ul id="walista" class="scroll"></ul>
-      </div>
-      <div id="chat"><p class="aviso">Elegí una conversación.</p></div>
-      <aside id="ficha" class="scroll"><p class="aviso">La ficha del contacto aparece al abrir una conversación.</p></aside>
+<form class="entrar" id="entrar" hidden>
+  <h1>WhatsApp · <span>MyM Soluciones</span></h1>
+  <input type="password" id="clave" placeholder="Clave del panel" autocomplete="current-password" required>
+  <button class="btn" type="submit" style="justify-content:center;padding:10px">Entrar</button>
+  <p class="muted" id="entrarmsg"></p>
+</form>
+<div id="panel" hidden>
+  <div class="wa-barra">
+    <div class="wa-sems" id="waSems"></div>
+    <span class="grow"></span>
+    <div class="wa-controles">
+      <button class="btn gris" id="avisos" type="button" hidden title="Que el navegador avise cuando entra un mensaje">🔔<span class="wa-lbl"> Activar avisos</span></button>
+      <button class="btn gris" id="warecargar" type="button" title="Actualizar">↻</button>
+      <button class="btn" id="verEstado" type="button" aria-expanded="false" title="Ver el estado completo">ⓘ<span class="wa-lbl"> Estado ▾</span></button>
+      <a class="btn gris" href="./" title="Volver al panel">⌂<span class="wa-lbl"> Panel</span></a>
+      <button class="btn gris" id="salir" type="button" title="Salir">⎋<span class="wa-lbl"> Salir</span></button>
     </div>
+    <div class="wa-detalle" id="waDetalle" hidden></div>
+  </div>
+  <p id="wamsg"></p>
+  <div id="waWrap">
+    <div class="wa-col-lista">
+      <div class="wa-buscar"><input type="search" id="wabuscar" placeholder="🔍 Buscar por nombre, negocio o teléfono" autocomplete="off"></div>
+      <div class="wa-tabs" id="waTabs"></div>
+      <div id="waLista" class="scroll"></div>
+    </div>
+    <div id="waChat"><div class="vacio">Elegí una conversación de la lista.</div></div>
   </div>
 </div>
 <script src="../config.js"></script>
@@ -151,14 +185,13 @@
   const fecha = (ts) => { const d = new Date(ts); return isNaN(d) ? '' : d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); };
   const DE = { cliente: '', robot: 'Robot', humano: 'Equipo' };
   const TITULO = document.title;
-  const FILTROS = [['todas', 'Todas'], ['sin_leer', 'Sin leer'], ['esperando', 'Esperando'], ['robot', 'Robot activo'], ['mias', 'Atendidas por mí'], ['resueltas', 'Resueltas']];
   const CAMPOS = { nombre: 'Nombre', negocio: 'Negocio', rubro: 'Rubro', automatizar: 'Qué quiere automatizar', email: 'Email', ciudad: 'Ciudad' };
-  // Los nombres de etapas y motivos los manda el server; éstos son sólo por si todavía no llegaron.
+  // Los nombres de etapas los manda el server; éstos son sólo por si todavía no llegaron.
   let ETAPAS = { nuevo: 'Nuevo', diagnostico: 'Diagnóstico', propuesta: 'Propuesta', cliente: 'Cliente', perdido: 'Perdido' };
   // Los textos de los motivos son de la pantalla (Budy: "no se entendía qué quería decir cada uno").
   const MOTIVOS = { diagnostico: 'Quiere el diagnóstico', precio: 'Pide precio especial', contratar: 'Quiere contratar', persona: 'Pidió hablar con una persona', consulta: 'Consulta sin respuesta' };
-  let campos = Object.keys(CAMPOS), respuestas = [];
-  let clave = '', charlas = [], abierta = null, filtro = 'todas', etapa = '', vistos = null, nuevos = 0, fichaSucia = '';
+  let campos = Object.keys(CAMPOS), respuestas = [], resumen = {};
+  let clave = '', charlas = [], abierta = null, filtro = 'todas', etapa = '', vistos = null, nuevos = 0, fichaSucia = '', fichaAbierta = false;
   try { clave = sessionStorage.getItem('sol_clave') || ''; } catch (e) {}
 
   async function pedir(ruta, op) {
@@ -174,19 +207,39 @@
   function salir(m) { clave = ''; try { sessionStorage.removeItem('sol_clave'); } catch (e) {} $('#panel').hidden = true; $('#entrar').hidden = false; $('#entrarmsg').textContent = m || ''; }
 
   const nombre = (c) => (c.datos || {}).nombre || c.nombre_perfil || '+' + c.telefono;
-  const esperaMin = (c) => c.espera_desde ? Math.max(0, Math.round((Date.now() - new Date(c.espera_desde)) / 60000)) : null;
-  function hace(min) { return min < 60 ? min + ' min' : min < 1440 ? Math.floor(min / 60) + ' h' : Math.floor(min / 1440) + ' d'; }
+  const minDesde = (ts) => ts ? Math.max(0, Math.round((Date.now() - new Date(ts)) / 60000)) : null;
+  const hace = (min) => min < 1 ? 'recién' : min < 60 ? 'hace ' + min + ' min' : min < 1440 ? 'hace ' + Math.floor(min / 60) + ' h' : 'hace ' + Math.floor(min / 1440) + ' d';
+  const esperando = (c) => !!c.espera_desde && !c.resuelta;
+  // Avatar con iniciales, igual que en AppMyM: Meta no da la foto de perfil, sólo el nombre.
+  function avatar(c, s) {
+    const n = String(nombre(c)).trim();
+    const ini = n.replace(/[^\p{L}\s]/gu, '').trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase() || '?';
+    let h = 0; for (const ch of String(c.telefono || n)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const col = ['#1565c0', '#6a1b9a', '#2e7d32', '#8e5b00', '#00695c', '#4527a0', '#ad1457', '#37474f'][h % 8];
+    return '<span class="wa-avatar" style="width:' + s + 'px;height:' + s + 'px;background:' + col + ';font-size:' + Math.round(s * 0.4) + 'px">' + esc(ini) + '</span>';
+  }
 
-  // ---------- Resumen ----------
+  // ---------- Barra y estado ----------
+  function pintarBarra() {
+    const esp = resumen.esperando != null ? resumen.esperando : charlas.filter(esperando).length;
+    const tomadas = charlas.filter((c) => !c.robot_activo).length;
+    $('#waSems').innerHTML = (esp ? '<button type="button" class="wa-sem wa-sem-al" id="semEsp"><i class="wa-dot"></i><span>🙋 ' + esp + (esp === 1 ? ' persona espera' : ' personas esperan') + ' a alguien del equipo</span></button>' : '')
+      + '<span class="wa-sem"><i class="wa-dot"></i><span>Robot activo</span></span>'
+      + (tomadas ? '<span class="wa-sem"><i class="wa-dot" style="background:#ffb74d"></i><span>' + tomadas + ' tomada' + (tomadas === 1 ? '' : 's') + ' por el equipo</span></span>' : '');
+  }
+  function pintarEstado() {
+    const r = resumen, pe = r.por_etapa || {};
+    $('#waDetalle').innerHTML = '<h3>Actividad</h3><div class="tarjetas">'
+      + [[r.charlas_hoy, 'Conversaciones hoy'], [r.charlas_semana, 'Esta semana'], [r.nuevas_semana, 'Contactos nuevos (7 días)'], [r.esperando, 'Esperando respuesta', 'alerta']]
+        .map(([n, t, k]) => '<div class="tarj ' + (k && n ? k : '') + '"><b>' + (n || 0) + '</b><small>' + t + '</small></div>').join('')
+      + '</div><h3>Embudo</h3>' + Object.keys(ETAPAS).map((k) => '<div class="embudo-f" data-etapa="' + esc(k) + '"><span>' + esc(ETAPAS[k]) + '</span><b>' + (pe[k] || 0) + '</b></div>').join('');
+  }
   async function cargarResumen() {
     try {
       const j = await pedir('/api/ventas-sol/resumen');
       if (j.etapas) ETAPAS = j.etapas;
-      const r = j.resumen || {};
-      $('#tarjetas').innerHTML = [['hoy', r.charlas_hoy, 'Conversaciones hoy'], ['semana', r.charlas_semana, 'Esta semana'], ['nuevas', r.nuevas_semana, 'Contactos nuevos (7 días)'], ['esperando', r.esperando, 'Esperando respuesta']]
-        .map(([k, n, t]) => '<button type="button" class="tarj' + (k === 'esperando' && n ? ' alerta' : '') + '" data-f="' + (k === 'esperando' ? 'esperando' : 'todas') + '"><b>' + (n || 0) + '</b><small>' + t + '</small></button>').join('');
-      const pe = r.por_etapa || {};
-      $('#embudo').innerHTML = Object.keys(ETAPAS).map((k) => '<button type="button" data-etapa="' + esc(k) + '" class="' + (etapa === k ? 'on' : '') + '">' + esc(ETAPAS[k]) + '<b>' + (pe[k] || 0) + '</b></button>').join('');
+      resumen = j.resumen || {};
+      pintarBarra(); pintarEstado(); pintarTabs();
     } catch (e) { /* el resumen no es imprescindible: la lista sigue andando */ }
   }
   async function cargarRespuestas() {
@@ -200,76 +253,93 @@
   }
 
   // ---------- Lista ----------
-  function pintarFiltros() {
-    $('#filtros').innerHTML = FILTROS.map(([k, t]) => '<button type="button" data-filtro="' + k + '" class="' + (filtro === k ? 'on' : '') + '">' + t + '</button>').join('')
-      + (etapa ? '<button type="button" data-filtro="sin-etapa" class="on">Etapa: ' + esc(ETAPAS[etapa] || etapa) + ' ✕</button>' : '');
-    document.querySelectorAll('#embudo button').forEach((b) => b.classList.toggle('on', b.dataset.etapa === etapa));
-  }
-  function pasa(c) {
-    if (etapa && (c.etapa || 'nuevo') !== etapa) return false;
-    if (filtro === 'sin_leer') return c.sin_leer > 0;
-    if (filtro === 'esperando') return !!c.espera_desde && !c.resuelta;
-    if (filtro === 'robot') return c.robot_activo;
-    if (filtro === 'mias') return !c.robot_activo;
-    if (filtro === 'resueltas') return !!c.resuelta;
-    return true;
+  const FILTRO = {
+    todas: () => true,
+    esperando,
+    pausadas: (c) => !c.robot_activo,
+    sin_leer: (c) => c.sin_leer > 0,
+    resueltas: (c) => !!c.resuelta,
+  };
+  function pintarTabs() {
+    const n = (f) => charlas.filter(FILTRO[f]).length;
+    const tab = (f, txt, cls) => '<button type="button" class="wa-tab ' + (cls || '') + (filtro === f && !etapa ? ' on' : '') + '" data-filtro="' + f + '">' + txt + '</button>';
+    const porEtapa = {}; charlas.forEach((c) => { const k = c.etapa || 'nuevo'; porEtapa[k] = (porEtapa[k] || 0) + 1; });
+    // Igual que en AppMyM: un chip que diría 0 no se muestra.
+    $('#waTabs').innerHTML = tab('todas', 'Todos · ' + charlas.length)
+      + (n('esperando') ? tab('esperando', '🙋 Piden humano · ' + n('esperando'), 'rojo') : '')
+      + (n('pausadas') ? tab('pausadas', '✋ Tomadas por el equipo · ' + n('pausadas'), 'naranja') : '')
+      + (n('sin_leer') ? tab('sin_leer', 'Sin leer · ' + n('sin_leer')) : '')
+      + (n('resueltas') ? tab('resueltas', '✓ Ya atendidas · ' + n('resueltas')) : '')
+      + Object.keys(ETAPAS).filter((k) => porEtapa[k]).map((k) => '<button type="button" class="wa-tab' + (etapa === k ? ' on' : '') + '" data-etapa="' + esc(k) + '">' + esc(ETAPAS[k]) + ' · ' + porEtapa[k] + '</button>').join('');
   }
   function pintarCharlas() {
-    pintarFiltros();
+    pintarTabs(); pintarBarra();
     const q = $('#wabuscar').value.trim().toLowerCase();
-    const lista = charlas.filter(pasa).filter((c) => !q || [c.datos.nombre, c.datos.negocio, c.nombre_perfil, c.telefono].join(' ').toLowerCase().includes(q));
-    $('#walista').innerHTML = lista.length ? lista.map((c) => {
-      const min = esperaMin(c);
-      return '<li data-tel="' + esc(c.telefono) + '" class="' + (abierta && abierta.telefono === c.telefono ? 'on ' : '') + (c.resuelta ? 'resuelta' : '') + '">'
-        + '<div class="fila"><b>' + esc(nombre(c)) + '</b>' + (c.sin_leer ? '<span class="chip oro">' + c.sin_leer + '</span>' : '') + '</div>'
-        + (c.datos.negocio ? '<small>' + esc(c.datos.negocio) + '</small>' : '')
-        + '<small>' + esc((c.ultimo || {}).texto || '') + '</small>'
-        + '<div class="chips"><span class="chip">' + esc(ETAPAS[c.etapa] || ETAPAS.nuevo || 'Nuevo') + '</span>'
-        + (c.derivada ? '<span class="chip der">' + esc(MOTIVOS[c.derivada.motivo] || 'Derivada') + '</span>' : '')
-        + (min != null && !c.resuelta ? '<span class="chip' + (min > 30 ? ' rojo' : ' der') + '">espera hace ' + hace(min) + '</span>' : '')
-        + (c.robot_activo ? '' : '<span class="chip verde">Atiende el equipo</span>')
-        + (c.resuelta ? '<span class="chip verde">Resuelta</span>' : '')
-        + '<span class="chip">' + (c.ventana_abierta ? '24 h abierta' : '24 h cerrada') + '</span></div></li>';
-    }).join('') : '<li><small>No hay conversaciones con este filtro.</small></li>';
+    let lista = charlas.filter((c) => (etapa ? (c.etapa || 'nuevo') === etapa : FILTRO[filtro](c)))
+      .filter((c) => !q || [c.datos.nombre, c.datos.negocio, c.nombre_perfil, c.telefono].join(' ').toLowerCase().includes(q));
+    // En "Piden humano" manda la espera: primero el que hace más que espera.
+    if (filtro === 'esperando' && !etapa) lista = lista.slice().sort((a, b) => String(a.espera_desde).localeCompare(String(b.espera_desde)));
+    $('#waLista').innerHTML = lista.length ? lista.map((c) => {
+      const d = c.datos || {}, ult = c.ultimo || {}, minUlt = minDesde(ult.ts), minEsp = esperando(c) ? minDesde(c.espera_desde) : null;
+      const nueva = (c.etapa || 'nuevo') === 'nuevo' && minDesde(c.creado) != null && minDesde(c.creado) < 1440;
+      return '<div class="wa-item' + (abierta && abierta.telefono === c.telefono ? ' on' : '') + (c.resuelta ? ' resuelta' : '') + '" data-tel="' + esc(c.telefono) + '">'
+        + avatar(c, 38)
+        + '<div class="wa-cuerpo"><div class="wa-l1"><span class="wa-nom">' + esc(nombre(c)) + '</span>'
+        + (minUlt != null ? '<span class="wa-hora' + (minUlt > 1440 ? ' viejo' : '') + '">' + hace(minUlt) + '</span>' : '') + '</div>'
+        + '<div class="wa-bajo"><div class="wa-txts">'
+        + '<div class="wa-ult">' + (ult.de && ult.de !== 'cliente' ? (ult.de === 'robot' ? 'Robot: ' : 'Vos: ') : '') + esc(ult.texto || '') + '</div>'
+        + '<div class="wa-etapa">' + [ETAPAS[c.etapa || 'nuevo'] || 'Nuevo', d.negocio, d.automatizar].filter(Boolean).map(esc).join(' · ') + '</div>'
+        + (c.derivada && !c.resuelta ? '<div class="wa-motivo' + (minEsp > 30 ? ' tarde' : '') + '">🙋 ' + esc(MOTIVOS[c.derivada.motivo] || 'Derivada') + (minEsp != null ? ' · espera ' + hace(minEsp) : '') + '</div>' : '')
+        + '</div><div class="wa-ests">'
+        + (c.sin_leer ? '<i class="cont">' + c.sin_leer + '</i>' : '')
+        + (minEsp != null ? '<i class="urg" title="Espera a alguien del equipo">🙋</i>' : '')
+        + (nueva ? '<i class="new" title="Contacto nuevo (últimas 24 h)">NEW</i>' : '')
+        + (!c.robot_activo ? '<i title="La atiende el equipo; el robot no contesta">👤</i>' : '')
+        + (!c.sin_leer && ult.de === 'cliente' ? '<i class="leido" title="Leído">✓✓</i>' : '')
+        + (!c.ventana_abierta ? '<i title="Ventana de 24 h cerrada: no se le puede escribir">🔒</i>' : '')
+        + '</div></div></div></div>';
+    }).join('') : '<div class="vacio-lista">No hay conversaciones con este filtro.</div>';
   }
 
   // ---------- Charla y ficha ----------
   function pintarChat() {
-    $('#grilla').classList.toggle('abierta', !!abierta);
-    if (!abierta) { $('#chat').innerHTML = '<p class="aviso">Elegí una conversación.</p>'; $('#ficha').innerHTML = '<p class="aviso">La ficha del contacto aparece al abrir una conversación.</p>'; return; }
-    const c = abierta, d = c.datos || {};
+    $('#waWrap').classList.toggle('abierta', !!abierta);
+    if (!abierta) { $('#waChat').innerHTML = '<div class="vacio">Elegí una conversación de la lista.</div>'; return; }
+    const c = abierta;
     const borrador = $('#texto') ? $('#texto').value : '';
-    $('#chat').innerHTML = '<div class="cab"><div><button class="btn gris chico solo-cel" id="volver" type="button">←</button> <b>' + esc(nombre(c)) + '</b> <small>+' + esc(c.telefono) + '</small>'
-      + (c.derivada ? '<br><small>El robot la derivó: ' + esc((MOTIVOS[c.derivada.motivo] || c.derivada.motivo).toLowerCase()) + ' · ' + fecha(c.derivada.ts) + '</small>' : '') + '</div>'
-      + '<div class="acciones"><button class="btn gris chico solo-cel solo-med" id="verficha" type="button">Ficha</button>'
-      + (c.robot_activo ? '<button class="btn gris chico" id="robot" type="button" title="El robot deja de contestar en esta charla">Tomar la charla</button>' : '<button class="btn gris chico" id="robot" type="button" title="El robot vuelve a contestar en esta charla">Devolver al robot</button>')
-      + (c.resuelta ? '<button class="btn chico" id="resolver" type="button" title="Vuelve a Esperando">Reabrir' : '<button class="btn chico" id="resolver" type="button" title="Sale de Esperando hasta que vuelva a escribir">Ya la atendí') + '</button></div></div>'
-      + '<div class="msgs scroll" id="msgs">' + (c.mensajes || []).map((m) => '<div class="m ' + esc(m.de) + '">' + esc(m.texto) + '<small>' + (DE[m.de] ? DE[m.de] + ' · ' : '') + fecha(m.ts)
-      + (m.error ? ' · <span class="err">no salió: ' + esc(m.error) + '</span>' : '') + '</small></div>').join('') + '</div>'
-      + (c.ultimo_error ? '<p class="aviso err">Último error de envío: ' + esc(c.ultimo_error) + '</p>' : '')
+    const fichaVieja = fichaSucia === c.telefono ? $('#waFicha') : null;
+    $('#waChat').innerHTML = '<div class="wa-cab"><button class="btn gris solo-cel" id="volver" type="button">←</button>' + avatar(c, 40)
+      + '<div class="quien"><b>' + esc(nombre(c)) + '</b><small>+' + esc(c.telefono) + ((c.datos || {}).negocio ? ' · ' + esc(c.datos.negocio) : '') + '</small>'
+      + (c.derivada ? '<small class="der">El robot la derivó: ' + esc((MOTIVOS[c.derivada.motivo] || c.derivada.motivo).toLowerCase()) + ' · ' + fecha(c.derivada.ts) + '</small>' : '') + '</div>'
+      + '<div class="wa-acc">'
+      + (c.robot_activo ? '<button class="btn" id="robot" type="button" title="El robot deja de contestar en esta charla">✋ Tomar la charla</button>' : '<button class="btn gris" id="robot" type="button" title="El robot vuelve a contestar en esta charla">🤖 Devolver al robot</button>')
+      + (c.resuelta ? '<button class="btn gris" id="resolver" type="button" title="Vuelve a Esperando">Reabrir</button>' : '<button class="btn gris" id="resolver" type="button" title="Sale de Esperando hasta que vuelva a escribir">✓ Ya la atendí</button>')
+      + '<button class="btn gris" id="verficha" type="button" aria-expanded="' + fichaAbierta + '">📋 Ficha</button></div></div>'
+      + '<div class="wa-burbujas scroll" id="msgs">' + (c.mensajes || []).map((m) => '<div class="wa-b wa-' + esc(m.de) + '">' + esc(m.texto) + '<span class="wa-t">' + (DE[m.de] ? DE[m.de] + ' · ' : '') + fecha(m.ts)
+      + (m.error ? ' · <span class="err">no salió: ' + esc(m.error) + '</span>' : '') + '</span></div>').join('') + '</div>'
+      + (c.ultimo_error ? '<p class="err" style="margin:0;font-size:12px">Último error de envío: ' + esc(c.ultimo_error) + '</p>' : '')
       + (c.ventana_abierta
         ? (respuestas.length ? '<div class="rapidas">' + respuestas.map((r, i) => '<button type="button" data-rapida="' + i + '" title="' + esc(r.texto) + '">' + esc(r.titulo) + '</button>').join('') + '</div>' : '')
-          + '<form class="escribir" id="escribir"><textarea id="texto" placeholder="Escribile desde el 11 3366-2080…" required></textarea><button class="btn" type="submit">Enviar</button></form>'
-        : '<div class="cerrada"><b>Ventana de 24 h cerrada.</b> Pasaron más de 24 horas desde su último mensaje: WhatsApp no permite escribirle hasta que el contacto vuelva a escribir.</div>');
+          + '<form class="escribir" id="escribir"><textarea id="texto" rows="1" placeholder="Escribile desde el 11 3366-2080…" required></textarea><button class="btn" type="submit" style="padding:10px 16px">Enviar</button></form>'
+        : '<div class="cerrada"><b>🔒 Ventana de 24 h cerrada.</b> Pasaron más de 24 horas desde su último mensaje: WhatsApp no permite escribirle hasta que el contacto vuelva a escribir.</div>')
+      + '<aside id="waFicha" class="scroll"' + (fichaAbierta ? '' : ' hidden') + '></aside>';
     if (borrador && $('#texto')) $('#texto').value = borrador;
     const msgs = $('#msgs'); msgs.scrollTop = msgs.scrollHeight;
-
-    // Con cambios sin guardar no se repinta: el refresco no pisa lo que se está escribiendo.
-    if (fichaSucia === c.telefono) { $('#fichamsg').textContent = 'Cambios sin guardar.'; return; }
+    // Con cambios sin guardar se vuelve a poner la misma ficha: el refresco no pisa lo que se está escribiendo.
+    if (fichaVieja) { $('#waFicha').replaceWith(fichaVieja); fichaVieja.hidden = !fichaAbierta; $('#fichamsg').textContent = 'Cambios sin guardar.'; return; }
     fichaSucia = '';
-    $('#ficha').innerHTML = '<button class="btn gris chico solo-cel solo-med" id="verchat" type="button" style="margin-bottom:10px">← Conversación</button><h2>Ficha</h2><form id="fichaform">'
+    const d = c.datos || {};
+    $('#waFicha').innerHTML = '<div class="tit"><h2>Ficha</h2><button class="btn gris" id="cerrarficha" type="button" title="Cerrar">✕</button></div><form id="fichaform">'
       + '<label>Etapa<select name="etapa">' + Object.keys(ETAPAS).map((k) => '<option value="' + esc(k) + '"' + ((c.etapa || 'nuevo') === k ? ' selected' : '') + '>' + esc(ETAPAS[k]) + '</option>').join('') + '</select></label>'
       + campos.map((k) => '<label>' + esc(CAMPOS[k] || k) + '<input name="d_' + esc(k) + '" value="' + esc(d[k] || '') + '"></label>').join('')
       + '<label>Notas internas (el cliente no las ve)<textarea name="notas">' + esc(c.notas || '') + '</textarea></label>'
-      + '<button class="btn" type="submit">Guardar</button><p class="aviso" id="fichamsg"></p></form>'
+      + '<button class="btn" type="submit" style="justify-content:center;padding:9px">Guardar</button><p id="fichamsg"></p></form>'
       + '<div class="dato"><span>Primer contacto: ' + (fecha(c.creado) || '—') + '</span><span>Último mensaje del cliente: ' + (fecha(c.ultimo_cliente_en) || '—') + '</span></div>';
   }
 
   async function cargar() {
-    try {
-      charlas = (await pedir('/api/ventas-sol/charlas')).charlas || [];
-      msg(''); avisar(); pintarCharlas();
-    } catch (e) { msg('No se pudieron leer las conversaciones: ' + e.message); }
+    try { charlas = (await pedir('/api/ventas-sol/charlas')).charlas || []; msg(''); avisar(); pintarCharlas(); }
+    catch (e) { msg('No se pudieron leer las conversaciones: ' + e.message); }
   }
   async function abrir(t) {
     try {
@@ -287,12 +357,13 @@
     const ahora = {};
     charlas.forEach((c) => { ahora[c.telefono] = firma(c); });
     if (vistos) {
-      const cambios = charlas.filter((c) => vistos[c.telefono] !== ahora[c.telefono] && ((c.ultimo || {}).de === 'cliente' || (c.derivada && !(vistos[c.telefono] || '').endsWith('|' + c.derivada.ts))));
+      const derivoRecien = (c) => c.derivada && !(vistos[c.telefono] || '').endsWith('|' + c.derivada.ts);
+      const cambios = charlas.filter((c) => vistos[c.telefono] !== ahora[c.telefono] && ((c.ultimo || {}).de === 'cliente' || derivoRecien(c)));
       if (cambios.length) {
         nuevos += cambios.length;
         if (window.Notification && Notification.permission === 'granted') {
           const c = cambios[0];
-          try { new Notification(c.derivada && !(vistos[c.telefono] || '').endsWith('|' + c.derivada.ts) ? 'Derivación: ' + nombre(c) : 'Mensaje de ' + nombre(c), { body: (c.ultimo || {}).texto || '', icon: '../img/favicon.png', tag: 'wa-' + c.telefono }); } catch (e) {}
+          try { new Notification(derivoRecien(c) ? 'Derivación: ' + nombre(c) : 'Mensaje de ' + nombre(c), { body: (c.ultimo || {}).texto || '', icon: '../img/favicon.png', tag: 'wa-' + c.telefono }); } catch (e) {}
         }
       }
     }
@@ -306,19 +377,22 @@
 
   // ---------- Eventos ----------
   function entrar() { $('#entrar').hidden = true; $('#panel').hidden = false; cargarResumen(); cargarRespuestas(); cargar(); }
+  function filtrar(f, e) { filtro = f; etapa = e || ''; pintarCharlas(); }
   $('#entrar').addEventListener('submit', (e) => { e.preventDefault(); clave = $('#clave').value; try { sessionStorage.setItem('sol_clave', clave); } catch (er) {} entrar(); });
   $('#salir').addEventListener('click', () => salir(''));
   $('#wabuscar').addEventListener('input', pintarCharlas);
   $('#warecargar').addEventListener('click', () => { cargarResumen(); cargar(); if (abierta) abrir(abierta.telefono); });
-  $('#walista').addEventListener('click', (e) => { const li = e.target.closest('li[data-tel]'); if (li) { $('#grilla').classList.remove('ver-ficha'); abrir(li.dataset.tel); } });
-  $('#filtros').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.filtro === 'sin-etapa') etapa = ''; else filtro = b.dataset.filtro; pintarCharlas(); });
-  $('#embudo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; etapa = etapa === b.dataset.etapa ? '' : b.dataset.etapa; pintarCharlas(); });
-  $('#tarjetas').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; filtro = b.dataset.f; etapa = ''; pintarCharlas(); });
+  $('#verEstado').addEventListener('click', (e) => { const d = $('#waDetalle'); d.hidden = !d.hidden; e.currentTarget.setAttribute('aria-expanded', String(!d.hidden)); });
+  document.addEventListener('click', (e) => { if (!e.target.closest('#waDetalle, #verEstado')) $('#waDetalle').hidden = true; });
+  $('#waDetalle').addEventListener('click', (e) => { const f = e.target.closest('[data-etapa]'); if (f) { filtrar('todas', f.dataset.etapa); $('#waDetalle').hidden = true; } });
+  $('#waSems').addEventListener('click', (e) => { if (e.target.closest('#semEsp')) filtrar('esperando'); });
+  $('#waTabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; b.dataset.etapa ? filtrar('todas', etapa === b.dataset.etapa ? '' : b.dataset.etapa) : filtrar(b.dataset.filtro); });
+  $('#waLista').addEventListener('click', (e) => { const it = e.target.closest('[data-tel]'); if (it) abrir(it.dataset.tel); });
 
-  $('#chat').addEventListener('click', async (e) => {
+  $('#waChat').addEventListener('click', async (e) => {
     const b = e.target.closest('button'); if (!b || !abierta) return;
     if (b.id === 'volver') { abierta = null; pintarCharlas(); pintarChat(); return; }
-    if (b.id === 'verficha') { $('#grilla').classList.add('ver-ficha'); return; }
+    if (b.id === 'verficha' || b.id === 'cerrarficha') { fichaAbierta = b.id === 'verficha' ? !fichaAbierta : false; $('#waFicha').hidden = !fichaAbierta; $('#verficha').setAttribute('aria-expanded', fichaAbierta); return; }
     if (b.dataset.rapida != null) {
       const t = $('#texto'), r = respuestas[+b.dataset.rapida]; if (!t || !r) return;
       const i = t.selectionStart ?? t.value.length;
@@ -332,8 +406,14 @@
       cargar(); cargarResumen();
     } catch (err) { b.disabled = false; msg('No se pudo cambiar: ' + err.message); }
   });
-  $('#chat').addEventListener('submit', async (e) => {
+  $('#waChat').addEventListener('input', (e) => {
+    if (e.target.id === 'texto') { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; return; }
+    if (abierta && e.target.closest('#waFicha')) { fichaSucia = abierta.telefono; $('#fichamsg').textContent = 'Cambios sin guardar.'; }
+  });
+  $('#waChat').addEventListener('keydown', (e) => { if (e.target.id === 'texto' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#escribir').requestSubmit(); } });
+  $('#waChat').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (e.target.id === 'fichaform') return guardarFicha(e.target);
     const texto = $('#texto').value.trim(), boton = e.target.querySelector('button');
     if (!texto || !abierta) return;
     boton.disabled = true;
@@ -344,12 +424,9 @@
       else msg('No se pudo mandar: ' + err.message);
     }
   });
-  $('#ficha').addEventListener('input', () => { if (abierta) { fichaSucia = abierta.telefono; $('#fichamsg').textContent = 'Cambios sin guardar.'; } });
-  $('#ficha').addEventListener('click', (e) => { if (e.target.id === 'verchat') $('#grilla').classList.remove('ver-ficha'); });
-  $('#ficha').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  async function guardarFicha(f) {
     if (!abierta) return;
-    const f = e.target, d = abierta.datos || {}, datos = {}, cuerpo = {};
+    const d = abierta.datos || {}, datos = {}, cuerpo = {};
     campos.forEach((k) => { const v = f['d_' + k].value.trim(); if (v !== (d[k] || '')) datos[k] = v; });
     if (Object.keys(datos).length) cuerpo.datos = datos;
     if (f.etapa.value !== (abierta.etapa || 'nuevo')) cuerpo.etapa = f.etapa.value;
@@ -358,7 +435,7 @@
     const b = f.querySelector('button'); b.disabled = true;
     try { const ch = (await post(ruta(abierta.telefono, '/ficha'), cuerpo)).charla; fichaSucia = ''; refrescarCharla(ch); $('#fichamsg').textContent = 'Guardado.'; if (cuerpo.etapa) cargarResumen(); }
     catch (err) { b.disabled = false; $('#fichamsg').innerHTML = '<span class="err">No se pudo guardar: ' + esc(err.message) + '</span>'; }
-  });
+  }
 
   // Cada 20 s y sólo con la pestaña visible: cada vuelta son lecturas pagas de Firestore en MyM.
   // Mientras se escribe un mensaje no se refresca la charla; la ficha se cuida sola (fichaSucia).

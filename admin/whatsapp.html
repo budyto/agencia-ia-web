@@ -159,6 +159,7 @@
     <span class="grow"></span>
     <div class="wa-controles">
       <button class="btn gris" id="avisos" type="button" hidden title="Que el navegador avise cuando entra un mensaje">🔔<span class="wa-lbl"> Activar avisos</span></button>
+      <button class="btn" id="pausar" type="button" title="Pausar o prender TODAS las respuestas automáticas del robot">⏸️<span class="wa-lbl"> Pausar bot</span></button>
       <button class="btn gris" id="warecargar" type="button" title="Actualizar">↻</button>
       <button class="btn" id="verEstado" type="button" aria-expanded="false" title="Ver el estado completo">ⓘ<span class="wa-lbl"> Estado ▾</span></button>
       <a class="btn gris" href="./" title="Volver al panel">⌂<span class="wa-lbl"> Panel</span></a>
@@ -190,7 +191,7 @@
   let ETAPAS = { nuevo: 'Nuevo', diagnostico: 'Diagnóstico', propuesta: 'Propuesta', cliente: 'Cliente', perdido: 'Perdido' };
   // Los textos de los motivos son de la pantalla (Budy: "no se entendía qué quería decir cada uno").
   const MOTIVOS = { diagnostico: 'Quiere el diagnóstico', precio: 'Pide precio especial', contratar: 'Quiere contratar', persona: 'Pidió hablar con una persona', consulta: 'Consulta sin respuesta' };
-  let campos = Object.keys(CAMPOS), respuestas = [], resumen = {};
+  let campos = Object.keys(CAMPOS), respuestas = [], resumen = {}, pausado = false;
   let clave = '', charlas = [], abierta = null, filtro = 'todas', etapa = '', vistos = null, nuevos = 0, fichaSucia = '', fichaAbierta = false;
   try { clave = sessionStorage.getItem('sol_clave') || ''; } catch (e) {}
 
@@ -224,7 +225,7 @@
     const esp = resumen.esperando != null ? resumen.esperando : charlas.filter(esperando).length;
     const tomadas = charlas.filter((c) => !c.robot_activo).length;
     $('#waSems').innerHTML = (esp ? '<button type="button" class="wa-sem wa-sem-al" id="semEsp"><i class="wa-dot"></i><span>🙋 ' + esp + (esp === 1 ? ' persona espera' : ' personas esperan') + ' a alguien del equipo</span></button>' : '')
-      + '<span class="wa-sem"><i class="wa-dot"></i><span>Robot activo</span></span>'
+      + (pausado ? '<span class="wa-sem"><i class="wa-dot" style="background:#ffb74d"></i><span>Bot pausado</span></span>' : '<span class="wa-sem"><i class="wa-dot"></i><span>Bot activo</span></span>')
       + (tomadas ? '<span class="wa-sem"><i class="wa-dot" style="background:#ffb74d"></i><span>' + tomadas + ' tomada' + (tomadas === 1 ? '' : 's') + ' por el equipo</span></span>' : '');
   }
   function pintarEstado() {
@@ -239,6 +240,8 @@
       const j = await pedir('/api/ventas-sol/resumen');
       if (j.etapas) ETAPAS = j.etapas;
       resumen = j.resumen || {};
+      pausado = !!(j.robot_pausado ?? resumen.robot_pausado);
+      $('#pausar').innerHTML = pausado ? '▶️<span class="wa-lbl"> Prender bot</span>' : '⏸️<span class="wa-lbl"> Pausar bot</span>';
       pintarBarra(); pintarEstado(); pintarTabs();
     } catch (e) { /* el resumen no es imprescindible: la lista sigue andando */ }
   }
@@ -382,6 +385,15 @@
   $('#salir').addEventListener('click', () => salir(''));
   $('#wabuscar').addEventListener('input', pintarCharlas);
   $('#warecargar').addEventListener('click', () => { cargarResumen(); cargar(); if (abierta) abrir(abierta.telefono); });
+  // Pausa global (31/10/2026): con el robot pausado los mensajes entran sin leer y nadie contesta solo.
+  $('#pausar').addEventListener('click', async (e) => {
+    const b = e.currentTarget;
+    if (!pausado && !confirm('¿Pausar el robot en TODAS las charlas? Los mensajes van a quedar sin respuesta hasta que lo prendas.')) return;
+    b.disabled = true;
+    try { pausado = !!(await post('/api/ventas-sol/robot', { activo: pausado })).robot_pausado; await cargarResumen(); }
+    catch (err) { msg('No se pudo cambiar el robot: ' + err.message); }
+    b.disabled = false;
+  });
   $('#verEstado').addEventListener('click', (e) => { const d = $('#waDetalle'); d.hidden = !d.hidden; e.currentTarget.setAttribute('aria-expanded', String(!d.hidden)); });
   document.addEventListener('click', (e) => { if (!e.target.closest('#waDetalle, #verEstado')) $('#waDetalle').hidden = true; });
   $('#waDetalle').addEventListener('click', (e) => { const f = e.target.closest('[data-etapa]'); if (f) { filtrar('todas', f.dataset.etapa); $('#waDetalle').hidden = true; } });
